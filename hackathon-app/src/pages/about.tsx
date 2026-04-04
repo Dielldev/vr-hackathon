@@ -61,13 +61,7 @@ export default function About() {
             <a href="/editor" className="menu__link" rel="internal">Editor</a>
           </li>
           <li className="menu__item menu__item--is-exhibition">
-            <button
-              type="button"
-              className="menu__link"
-              onClick={() => window.location.assign('/exhibition')}
-            >
-              Exhibition
-            </button>
+            <a href="/exhibition" className="menu__link" rel="internal">Exhibition</a>
           </li>
           <li className="menu__item">
             <a href="/about" className="menu__link" rel="internal">About</a>
