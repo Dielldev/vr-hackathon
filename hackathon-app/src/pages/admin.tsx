@@ -153,18 +153,18 @@ const PreviewScene = forwardRef<PreviewSceneHandle, {
          ref={controlsRef}
         mode={mode}
         size={0.9}
-        onObjectChange={() => {
-        }}
-        onDraggingChanged={(event) => {
-          draggingRef.current = event.value
+        onMouseDown={() => {
+          draggingRef.current = true
           if (orbitRef.current) {
-            orbitRef.current.enabled = !event.value
+            orbitRef.current.enabled = false
           }
-
-          // Persist transform when the drag operation ends.
-          if (!event.value) {
-            commitTransformFromGizmo()
+        }}
+        onMouseUp={() => {
+          draggingRef.current = false
+          if (orbitRef.current) {
+            orbitRef.current.enabled = true
           }
+          commitTransformFromGizmo()
         }}
       >
         <group ref={groupRef} position={position as [number, number, number]} rotation={[0, rotationY, 0]}>
@@ -259,11 +259,11 @@ export default function AdminPage() {
   }, [selectedWorld.id, allTransforms])
 
   const patchTransform = (patch: Record<string, number>) => {
-    setPreviewTransform((prev) => ({
+    setPreviewTransform((prev: TransformPatch) => ({
       ...prev,
       ...patch,
     }))
-    setAllTransforms((prev) => ({
+    setAllTransforms((prev: Record<string, TransformPatch>) => ({
       ...prev,
       [selectedWorld.id]: {
         ...(prev[selectedWorld.id] || {}),
@@ -279,7 +279,7 @@ export default function AdminPage() {
       ...livePatch,
     }
     const saved = updateWorldTransform(selectedWorld.id, merged)
-    setAllTransforms((prev) => ({
+    setAllTransforms((prev: Record<string, TransformPatch>) => ({
       ...prev,
       [selectedWorld.id]: saved,
     }))
@@ -288,7 +288,7 @@ export default function AdminPage() {
 
   const resetCurrent = () => {
     const reset = resetWorldTransform(selectedWorld.id)
-    setAllTransforms((prev) => ({
+    setAllTransforms((prev: Record<string, TransformPatch>) => ({
       ...prev,
       [selectedWorld.id]: reset,
     }))
