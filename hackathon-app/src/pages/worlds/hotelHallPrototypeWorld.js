@@ -1,0 +1,60 @@
+export const hotelHallPrototypeWorld = {
+  id: 'hotel-hall-prototype',
+  label: 'Hotel Hall Test',
+  modelPath: '/assets/models/eiffel_tower_paris_france.glb',
+  beaconVariant: 'ring',
+  exhibits: [
+    {
+      id: 'proto-core',
+      label: 'Prototype Core',
+      intro: 'A stress-test core used to validate alternate beacon rendering styles.',
+      storyTitle: 'The Story',
+      story:
+        'This object is a deliberate renderer test. It follows the same navigation map, but swaps to a ring-based visual style so we can quickly compare readability and mood changes.',
+      messageTitle: 'The Message',
+      message: 'Same world, different visual language. This confirms per-world render isolation.',
+      position: [-2.36, 1.95, 1.05],
+      color: '#00b8ff',
+      nodeId: 'hall-2',
+    },
+    {
+      id: 'proto-wave',
+      label: 'Wave Relay',
+      intro: 'A relay beacon tuned for bright, high-contrast object testing.',
+      storyTitle: 'The Story',
+      story:
+        'Wave Relay intentionally exaggerates highlights and motion. It helps evaluate whether visitors can identify interactive objects faster in low-contrast corners.',
+      messageTitle: 'The Message',
+      message: 'Prototyping should be obvious. Visibility beats subtlety while testing.',
+      position: [-4.74, 1.95, 1.2],
+      color: '#ffe066',
+      nodeId: 'left-gallery',
+    },
+    {
+      id: 'proto-facet',
+      label: 'Facet Node',
+      intro: 'A faceted test element used to compare shape recognition speed.',
+      storyTitle: 'The Story',
+      story:
+        'The Facet Node keeps the same location and interaction behavior, but changes geometry style. This gives a clean A/B check for engagement and wayfinding cues.',
+      messageTitle: 'The Message',
+      message: 'When interaction stays fixed, shape differences are easy to evaluate.',
+      position: [-0.62, 1.95, -0.45],
+      color: '#8fff8a',
+      nodeId: 'right-gallery',
+    },
+    {
+      id: 'proto-gate',
+      label: 'Gate Marker',
+      intro: 'A terminal marker for testing long-distance visibility in the hall.',
+      storyTitle: 'The Story',
+      story:
+        'The Gate Marker uses the same end point as the primary world but with stronger emissive cues. It is designed to test whether users orient faster when beacon silhouettes are distinct.',
+      messageTitle: 'The Message',
+      message: 'Consistent map, alternate rendering. Perfect for test sessions.',
+      position: [-3.72, 1.95, -1.82],
+      color: '#ff6f91',
+      nodeId: 'hall-end',
+    },
+  ],
+}
