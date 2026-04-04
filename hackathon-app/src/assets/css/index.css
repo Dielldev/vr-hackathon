@@ -396,6 +396,12 @@ html.is-vr-browser .menu__item--is-gallery {
   position: relative;
   overflow: visible;
 }
+.menu__link--exhibition {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+}
 .menu__link:after,
 .menu__link:before {
   content: "";

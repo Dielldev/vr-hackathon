@@ -1,19 +1,47 @@
 import { Canvas, useFrame, useThree, extend } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
-import { useRef, useEffect, useState, Suspense, useCallback } from 'react'
+import { useRef, useEffect, useState, Suspense, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Vector3, Quaternion } from 'three'
+import { Box3, Vector3, Quaternion } from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
 import { hotelHallPrototypeWorld } from './worlds/hotelHallPrototypeWorld'
+import { getWorldTransform } from '../utils/worldTransforms.js'
 import '../exb.css'
 
 extend({ EffectComposer, RenderPass, ShaderPass })
 
-function Model({ modelPath, ...props }) {
+function Model({ modelPath, targetSize = 16, groundY = 0, fitOffset = [0, 0, 0], rotationYDeg = 0, ...props }) {
   const { scene } = useGLTF(modelPath)
-  return <primitive object={scene} {...props} />
+
+  const fittedScene = useMemo(() => {
+    // Fit large external models (like Eiffel) into a predictable world size and center.
+    const clone = scene.clone(true)
+    clone.updateMatrixWorld(true)
+
+    const box = new Box3().setFromObject(clone)
+    const size = box.getSize(new Vector3())
+    const center = box.getCenter(new Vector3())
+    const maxDimension = Math.max(size.x, size.y, size.z) || 1
+    const scale = targetSize / maxDimension
+
+    clone.scale.setScalar(scale)
+    clone.position.set(
+      -center.x * scale,
+      groundY - box.min.y * scale,
+      -center.z * scale,
+    )
+
+    clone.position.x += fitOffset[0]
+    clone.position.y += fitOffset[1]
+    clone.position.z += fitOffset[2]
+    clone.rotation.y = (rotationYDeg * Math.PI) / 180
+
+    return clone
+  }, [scene, targetSize, groundY, fitOffset, rotationYDeg])
+
+  return <primitive object={fittedScene} {...props} />
 }
 
 // World 2 has its own node map so it can use different coordinates than World 1.
@@ -397,6 +425,7 @@ function CameraController({ setSaturation, activeNodeId, setActiveNodeId, target
 export default function Exhibition() {
   const navigate = useNavigate()
   const selectedWorld = hotelHallPrototypeWorld
+  const transform = getWorldTransform(selectedWorld.id)
   const exhibits = EXHIBITS_WORLD2
   const [saturation, setSaturation] = useState(1.0)
   const [activeNodeId, setActiveNodeId] = useState('entry')
@@ -744,7 +773,13 @@ export default function Exhibition() {
             exhibits={exhibits}
             beaconVariant={selectedWorld.beaconVariant}
           />
-          <Model modelPath={selectedWorld.modelPath} />
+          <Model
+            modelPath={selectedWorld.modelPath}
+            targetSize={transform.targetSize ?? 28}
+            groundY={transform.groundY ?? 0}
+            fitOffset={[transform.offsetX ?? -2.4, transform.offsetY ?? 1.2, transform.offsetZ ?? 0.8]}
+            rotationYDeg={transform.rotationYDeg ?? 180}
+          />
         </Suspense>
         <Effects saturation={saturation} />
       </Canvas>
@@ -752,4 +787,4 @@ export default function Exhibition() {
   )
 }
 
-useGLTF.preload('/assets/models/hotel_hall.glb')
+useGLTF.preload('/assets/models/eiffel_tower_paris_france.glb')

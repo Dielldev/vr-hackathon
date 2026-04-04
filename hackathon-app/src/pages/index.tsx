@@ -1,22 +1,26 @@
 
+import { useNavigate } from 'react-router-dom'
+
 export default function Home() {
+  const navigate = useNavigate()
+
   return (   
 
 <div className="index-page">
   <meta charSet="utf-8" />
   <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <title>Resilient Echoes</title>
+  <title>A shared space for care</title>
 
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <link rel="stylesheet" href="https://use.typekit.net/upz7xsh.css" />
   <link rel="stylesheet" href="assets/css/index.css" />
   <link rel="dns-prefetch" href="https://shadertoy.com" />
-  <meta name="description" content="A cinematic real-time shader visualiser brought to you by Resilient Echoes" />
-  <meta name="twitter:description" content="A cinematic real-time shader visualiser brought to you by Resilient Echoes" />
-  <meta property="og:description" content="A cinematic real-time shader visualiser brought to you by Resilient Echoes" />
-  <meta name="twitter:title" content="Resilient Echoes" />
-  <meta property="og:site_name" content="Resilient Echoes" />
-  <meta property="og:title" content="Resilient Echoes" />
+  <meta name="description" content="An exhibition space shaped with Swiss TPH, IHS, SDC, and the Government of Kosovo." />
+  <meta name="twitter:description" content="An exhibition space shaped with Swiss TPH, IHS, SDC, and the Government of Kosovo." />
+  <meta property="og:description" content="An exhibition space shaped with Swiss TPH, IHS, SDC, and the Government of Kosovo." />
+  <meta name="twitter:title" content="A shared space for care" />
+  <meta property="og:site_name" content="A shared space for care" />
+  <meta property="og:title" content="A shared space for care" />
   <meta name="twitter:site" content="@ResilientEchoes" />
   <meta name="twitter:creator" content="@ResilientEchoes" />
   <meta name="twitter:url" content="https://resilientechoes.com" />
@@ -46,7 +50,7 @@ export default function Home() {
       <nav className="header__menu">
         <a href="#" target="_blank">
           <div className="header__menu_item--lab">
-            <span className="header__menu_lab_text">Resilient Echoes</span>
+            <span className="header__menu_lab_text">Resilient Echo</span>
           </div>
         </a>
         <ul className="menu__items">
@@ -60,15 +64,11 @@ export default function Home() {
           <li className="menu__item menu__item--is-gallery">
             <a href="/gallery" className="menu__link" rel="internal">Gallery</a>
           </li>
-          <li className="menu__item menu__item--is-editor">
-            <a href="/editor" className="menu__link" rel="internal">Editor</a>
-          </li>
           <li className="menu__item menu__item--is-exhibition">
             <button
               type="button"
-              className="menu__link"
-              onClick={() => window.location.assign('/exhibition')}
-              style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer' }}
+              className="menu__link menu__link--exhibition"
+              onClick={() => navigate('/exhibition')}
             >
               Exhibition
             </button>
@@ -114,7 +114,7 @@ export default function Home() {
       <div className="gallery__wrapper">
         <header className="gallery__header">
           <p className="gallery__subtitle">
-            Discover the CineShaders created by the
+            Discover the exhibition worlds created by the
             <a className="button-inline title-text-effect__non-text" href="https://www.shadertoy.com" target="_blank">Shadertoy</a>
             community.<br />Click on any to preview it in the 3D
             environment.<br />If you want to add yours, please
@@ -145,7 +145,7 @@ export default function Home() {
               <div className="about__category">
                 <h5 className="category__title">Credits</h5>
                 <div className="category__text">
-                  CineShader proudly uses:<br /><br />
+                  This exhibition proudly uses:<br /><br />
                   <span className="about-credit-custom-bullet title-text-effect__non-text"><a className="button-inline title-text-effect__non-text" href="https://www.shadertoy.com/" target="_blank">Shadertoy.com</a>
                     API</span>
                   <span className="about-credit-custom-bullet title-text-effect__non-text"><a className="button-inline title-text-effect__non-text" href="https://github.com/patriciogonzalezvivo/glslEditor" target="_blank">GLSL Editor</a>'s Helpers</span>
@@ -162,7 +162,7 @@ export default function Home() {
                     up.</span>
                   <hr className="about-about-separator title-text-effect__non-text" />
                   Designed and built by
-                  <a className="button-inline title-text-effect__non-text" href="#" target="_blank">Resilient Echoes</a><br /><br />
+                  <a className="button-inline title-text-effect__non-text" href="#" target="_blank">A shared space for care</a><br /><br />
                   <span className="about-credit-custom-bullet title-text-effect__non-text">Visual Lead: Edan Kwan</span>
                   <span className="about-credit-custom-bullet title-text-effect__non-text">Designer &amp; Lead Developer: Fred Briolet</span>
                   <span className="about-credit-custom-bullet title-text-effect__non-text">Developer: Roch Bouchayer</span>
@@ -173,14 +173,13 @@ export default function Home() {
                 <h5 className="category__title">FAQ</h5>
                 <ul className="category__questions">
                   <li className="category__question">
-                    <span className="question__title">Why did we make CineShader?</span>
+                    <span className="question__title">Why did we make this exhibition?</span>
                     <p className="question__answer">
                       We simply wanted to make something beautiful. As
                       developers working in the advertisting industry, we have
                       learnt a lot from the Shadertoy community. We decided to
-                      make this little non-profit project for the Shadertoy
-                      community to allow their users to demonstrate their
-                      shader in a cinematic way.
+                      build a shared space for care, research, and lived
+                      experience in a cinematic way.
                     </p>
                   </li>
                   <li className="category__question">
@@ -188,8 +187,8 @@ export default function Home() {
                     <p className="question__answer">
                       The easiest way to do is to simply copy and paste the
                       shader from Shadertoy.com into the editor. Bare in mind
-                      that, CineShader doesn't support any texture, audio and
-                      framebuffer. If you want to make your shader CineShader
+                      that, this experience doesn't support any texture, audio and
+                      framebuffer. If you want to make your shader exhibition
                       compatible, please see
                       <button className="button-inline about-prompt-button title-text-effect__non-text" data-id="convert-your-shader" aria-label="Convert your shader">
                         this instruction</button>.
@@ -209,10 +208,10 @@ export default function Home() {
                     <span className="question__title">Why is my Shadertoy shader not showing in the
                       gallery?</span>
                     <p className="question__answer">
-                      CineShader refreshes the shader lists from Shadertoy
+                      This exhibition refreshes the scene list from Shadertoy
                       each day, every 6 hours. Also, please make sure it is
-                      visible by Cineshader:<br />
-                      <span className="about-credit-custom-bullet">it must include the tag "cineshader"</span>
+                      visible in the exhibition:<br />
+                      <span className="about-credit-custom-bullet">it must include the exhibition tag</span>
                       <span className="about-credit-custom-bullet">its visibility must be set to
                         "public&nbsp;+&nbsp;API"</span>
                     </p>
@@ -224,7 +223,7 @@ export default function Home() {
                       shader storage relies on user saving their shaders on
                       Shadertoy, it will be troublesome for us as well as for
                       the users to synchronise the inputs and their settings
-                      between CineShader and their shadertoy entry.
+                      between this exhibition and their Shadertoy entry.
                     </p>
                   </li>
                   <li className="category__question">
@@ -280,28 +279,20 @@ export default function Home() {
           <div className="about__intro">
             <h4 className="about__title">About</h4>
             <div className="about__description">
-              CineShader is a real-time 3D shader visualiser. It leverages the
+              This exhibition is a real-time 3D visualiser. It leverages the
               Shadertoy.com API to bring thousands of existing shader artworks
               into a cinematic 3D environment.
               <br className="title-text-effect__non-text" /><br className="title-text-effect__non-text" />
-              The whole project was started as an idea of using a web demo to
-              explain what procedural noise is to our clients at Resilient Echoes. After
-              sending out the demo to some of our friends, we were encouraged
-              to add the live editor support and we decided to release it to
-              the public. <br className="title-text-effect__non-text" /><br className="title-text-effect__non-text" />
-              We are not trying to make another Shadertoy but instead hoping
-              to give the Shadertoy users an extension to demonstrate their
-              shaders with a different presentation. Hence, all shaders are
-              still hosted at Shadertoy.com and reverse compatible in
-              Shadertoy.
+              The main page now introduces an exhibition shaped with Swiss TPH,
+              IHS, SDC, and the Government of Kosovo.<br className="title-text-effect__non-text" /><br className="title-text-effect__non-text" />
+              It is meant to frame research, care, and lived experience in one
+              clear entry point before you step into the 3D worlds.
               <hr className="about-about-separator title-text-effect__non-text" />
               <div className="about-company-title title-text-effect__non-text">
                 About Us
               </div>
-              Resilient Echoes is an award winning multidisciplinary production studio.
-              From creative to production, we collaborate with creative
-              agencies and design studios to deliver compelling, real-time
-              experiences, which go far beyond expectations.
+              This exhibition is presented as a shared civic space rather than
+              a studio portfolio. The focus is on the stories, not the brand.
               <hr className="about-about-separator title-text-effect__non-text" />
               <div className="about-company-title title-text-effect__non-text">
                 Follow Us
@@ -358,7 +349,7 @@ export default function Home() {
                 We don’t host your shaders, your shaders are automatically
                 saved in your local machine through the localStorage API. You
                 got 3 shader slots for localStorage. If you want to save and
-                share your CineShader, please
+                share your work, please
                 <button className="button-inline button__instructions" data-id="save-and-share" aria-label="Open the save and share instructions">
                   follow these instructions
                 </button>
@@ -381,7 +372,7 @@ export default function Home() {
                 </button>
               </li>
               <li>
-                Open your shadertoy in CineShader:
+                Open your Shadertoy in the exhibition:
                 <button className="button-default button__instructions" data-id="test-shadertoy" aria-label="test-shadertoy">
                   ENTER HERE
                 </button>
@@ -389,7 +380,7 @@ export default function Home() {
             </ul>
             <br />
             We encourage you to add the
-            <a className="button-inline" href="https://www.shadertoy.com/results?query=tag%3Dcineshader" target="_blank">cineshader</a>
+            <a className="button-inline" href="https://www.shadertoy.com/results?query=tag%3Dcineshader" target="_blank">exhibition</a>
             tag if you save your shaders on Shadertoy.
           </div>
         </div>
@@ -490,22 +481,23 @@ export default function Home() {
       </div>
     </div>
     <div id="preloader-vr">
-      <h2 id="preloader-vr__title">Entering CineShader VR</h2>
+      <h2 id="preloader-vr__title">Entering the exhibition</h2>
       <p id="preloader-vr__progress">
         Now Loading (<span id="preloader-vr__progress__percent" />%)
       </p>
     </div>
     <div className="xr-landing">
       <div className="xr-landing__bg" />
-      <h3 className="xr-landing__title">Welcome to CineShader VR</h3>
+      <h3 className="xr-landing__title">A shared space for care</h3>
       <p className="xr-landing__desc">
-        Discover shader artworks<br />from the Shadertoy community<br />in a
-        cinematic VR environment.
+        An exhibition shaped with Swiss TPH, IHS, SDC, and the Government of Kosovo.<br />
+        It brings lived experience, research, and care into one shared space.<br />
+        Step inside and move through stories of resilience, dignity, and connection.
       </p>
       <button className="button-default button__webxr button__webxr--middle" aria-label="ENTER VR">
         ENTER VR
       </button>
-      <a className="xr-landing__craftedby" href="#" target="_blank">Resilient Echoes</a>
+      <a className="xr-landing__craftedby" href="#" target="_blank">A shared space for care</a>
     </div>
   </div>
   <div className="button-wrapper__webxr--corner">

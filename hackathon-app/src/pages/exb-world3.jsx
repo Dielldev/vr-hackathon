@@ -7,13 +7,22 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
 import { artGalleryWorld } from './worlds/artGalleryWorld'
+import { getWorldTransform } from '../utils/worldTransforms.js'
 import '../exb.css'
 
 extend({ EffectComposer, RenderPass, ShaderPass })
 
-function Model({ modelPath, ...props }) {
+function Model({ modelPath, scale = 1, position = [0, 0, 0], rotationYDeg = 0, ...props }) {
   const { scene } = useGLTF(modelPath)
-  return <primitive object={scene} {...props} />
+  return (
+    <primitive
+      object={scene}
+      scale={scale}
+      position={position}
+      rotation={[0, (rotationYDeg * Math.PI) / 180, 0]}
+      {...props}
+    />
+  )
 }
 
 // World 3 has its own node map so it can use different coordinates than other worlds.
@@ -397,6 +406,7 @@ function CameraController({ setSaturation, activeNodeId, setActiveNodeId, target
 export default function Exhibition() {
   const navigate = useNavigate()
   const selectedWorld = artGalleryWorld
+  const transform = getWorldTransform(selectedWorld.id)
   const exhibits = EXHIBITS_WORLD3
   const [saturation, setSaturation] = useState(1.0)
   const [activeNodeId, setActiveNodeId] = useState('entry')
@@ -744,7 +754,12 @@ export default function Exhibition() {
             exhibits={exhibits}
             beaconVariant={selectedWorld.beaconVariant}
           />
-          <Model modelPath={selectedWorld.modelPath} />
+          <Model
+            modelPath={selectedWorld.modelPath}
+            scale={transform.scale ?? 1}
+            position={[transform.posX ?? 0, transform.posY ?? 0, transform.posZ ?? 0]}
+            rotationYDeg={transform.rotationYDeg ?? 0}
+          />
         </Suspense>
         <Effects saturation={saturation} />
       </Canvas>
@@ -752,4 +767,4 @@ export default function Exhibition() {
   )
 }
 
-useGLTF.preload('/assets/models/hotel_hall.glb')
+useGLTF.preload('/assets/models/art_gallery.glb')

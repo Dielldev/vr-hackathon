@@ -4,6 +4,8 @@ import Home from './pages/index'
 import About from './pages/about'
 import Gallery from './pages/gallery'
 import Editor from './pages/editor'
+import AdminHome from './pages/admin-home'
+import AdminPage from './pages/admin'
 import Exhibition from './pages/exb.jsx'
 import ExhibitionWorld2 from './pages/exb-world2.jsx'
 import ExhibitionWorld3 from './pages/exb-world3.jsx'
@@ -15,7 +17,12 @@ function AppRoutes() {
   const location = useLocation()
 
   useEffect(() => {
-    if (location.pathname.startsWith('/exhibition')) {
+    const path = location.pathname.toLowerCase()
+    const isExhibitionRoute = path.startsWith('/exhibition')
+    const isAdminHomeRoute = path === '/admin'
+    const isAdminMapEditorRoute = path.startsWith('/admin/map-editor')
+
+    if (isExhibitionRoute || isAdminHomeRoute || isAdminMapEditorRoute) {
       return
     }
 
@@ -28,7 +35,11 @@ function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
       <Route path="/gallery" element={<Gallery />} />
-      <Route path="/editor" element={<Editor />} />
+      <Route path="/editor" element={<Navigate to="/admin/editor" replace />} />
+      <Route path="/admin" element={<AdminHome />} />
+      <Route path="/admin/editor" element={<Editor />} />
+      <Route path="/admin/map-editor" element={<AdminPage />} />
+      <Route path="/ADMIN" element={<Navigate to="/admin" replace />} />
       <Route path="/exhibition" element={<ExhibitionStart />} />
       <Route path="/exhibition/world/hotel-hall-prototype" element={<ExhibitionWorld2 />} />
       <Route path="/exhibition/world/art-gallery" element={<ExhibitionWorld3 />} />

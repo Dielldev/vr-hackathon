@@ -3,17 +3,17 @@ export default function About() {
 <div className="about-page">
   <meta charSet="utf-8" />
   <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <title>CineShader</title>
+  <title>About</title>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <link rel="stylesheet" href="https://use.typekit.net/upz7xsh.css" />
   <link rel="stylesheet" href="assets/css/index.css" />
   <link rel="dns-prefetch" href="https://shadertoy.com" />
-  <meta name="description" content="A cinematic real-time shader visualiser brought to you by Resilient Echoes" />
-  <meta name="twitter:description" content="A cinematic real-time shader visualiser brought to you by Resilient Echoes " />
-  <meta property="og:description" content="A cinematic real-time shader visualiser brought to you by Resilient Echoes" />
-  <meta name="twitter:title" content="CineShader" />
-  <meta property="og:site_name" content="CineShader" />
-  <meta property="og:title" content="CineShader" />
+  <meta name="description" content="A VR and AR project that helps explain chronic disease through an immersive exhibition experience." />
+  <meta name="twitter:description" content="A VR and AR project that helps explain chronic disease through an immersive exhibition experience." />
+  <meta property="og:description" content="A VR and AR project that helps explain chronic disease through an immersive exhibition experience." />
+  <meta name="twitter:title" content="About" />
+  <meta property="og:site_name" content="About" />
+  <meta property="og:title" content="About" />
   <meta name="twitter:site" content="@vessels" />
   <meta name="twitter:creator" content="@vessels" />
   <meta name="twitter:url" content="https://cineshader.com" />
@@ -43,7 +43,7 @@ export default function About() {
       <nav className="header__menu">
         <a href="#" target="_blank">
           <div className="header__menu_item--lab">
-            <span className="header__menu_lab_text">Resilient Echoes</span>
+            <span className="header__menu_lab_text">About</span>
           </div>
         </a>
         <ul className="menu__items">
@@ -56,9 +56,6 @@ export default function About() {
           </li>
           <li className="menu__item menu__item--is-gallery">
             <a href="/gallery" className="menu__link" rel="internal">Gallery</a>
-          </li>
-          <li className="menu__item menu__item--is-editor">
-            <a href="/editor" className="menu__link" rel="internal">Editor</a>
           </li>
           <li className="menu__item menu__item--is-exhibition">
             <button
@@ -142,124 +139,23 @@ export default function About() {
               <div className="about__category">
                 <h5 className="category__title">Credits</h5>
                 <div className="category__text">
-                  CineShader proudly uses:<br /><br />
-                  <span className="about-credit-custom-bullet title-text-effect__non-text"><a className="button-inline title-text-effect__non-text" href="https://www.shadertoy.com/" target="_blank">Shadertoy.com</a>
-                    API</span>
-                  <span className="about-credit-custom-bullet title-text-effect__non-text"><a className="button-inline title-text-effect__non-text" href="https://github.com/patriciogonzalezvivo/glslEditor" target="_blank">GLSL Editor</a>'s Helpers</span>
-                  <span className="about-credit-custom-bullet title-text-effect__non-text"><a className="button-inline title-text-effect__non-text" href="https://codemirror.net/" target="_blank">CodeMirror</a></span>
-                  <span className="about-credit-custom-bullet title-text-effect__non-text"><a className="button-inline title-text-effect__non-text" href="https://threejs.org/" target="_blank">Three.js</a></span>
-                  <span className="about-credit-custom-bullet title-text-effect__non-text"><a className="button-inline title-text-effect__non-text" href="https://greensock.com/gsap/" target="_blank">GSAP</a><br /></span>
-                  <hr className="about-about-separator title-text-effect__non-text" />
-                  Special thanks to:<br /><br />
-                  <span className="about-credit-custom-bullet title-text-effect__non-text"><a className="button-inline" href="http://patriciogonzalezvivo.com/" target="_blank">Patricio Gonzalez Vivo</a>
-                    for his work of
-                    <a className="button-inline title-text-effect__non-text" href="https://thebookofshaders.com/" target="_blank">The Book of shaders</a></span>
-                  <span className="about-credit-custom-bullet title-text-effect__non-text"><a className="button-inline" href="http://refikanadol.com/" target="_blank">Refik Anadol</a>
-                    for his artwork which inspired us for this 3D stage set
-                    up.</span>
-                  <hr className="about-about-separator title-text-effect__non-text" />
-                  Designed and built by
-                  <a className="button-inline title-text-effect__non-text" href="#" target="_blank">Resilient Echoes</a><br /><br />
-                  <span className="about-credit-custom-bullet title-text-effect__non-text">Visual Lead: Edan Kwan</span>
-                  <span className="about-credit-custom-bullet title-text-effect__non-text">Designer &amp; Lead Developer: Fred Briolet</span>
-                  <span className="about-credit-custom-bullet title-text-effect__non-text">Developer: Roch Bouchayer</span>
+                  Lorik Jashari<br />
+                  Diel Govori<br />
+                  Ylber Govori<br />
+                  Bardh Hasani<br />
+                  Abdullah Murati
                 </div>
               </div>
               <div className="about__category">
                 <div className="about__category-separator" />
-                <h5 className="category__title">FAQ</h5>
-                <ul className="category__questions">
-                  <li className="category__question">
-                    <span className="question__title">Why did we make CineShader?</span>
-                    <p className="question__answer">
-                      We simply wanted to make something beautiful. As
-                      developers working in the advertisting industry, we have
-                      learnt a lot from the Shadertoy community. We decided to
-                      make this little non-profit project for the Shadertoy
-                      community to allow their users to demonstrate their
-                      shader in a cinematic way.
-                    </p>
-                  </li>
-                  <li className="category__question">
-                    <span className="question__title">How to import a shader from Shadertoy.com?</span>
-                    <p className="question__answer">
-                      The easiest way to do is to simply copy and paste the
-                      shader from Shadertoy.com into the editor. Bare in mind
-                      that, CineShader doesn't support any texture, audio and
-                      framebuffer. If you want to make your shader CineShader
-                      compatible, please see
-                      <button className="button-inline about-prompt-button title-text-effect__non-text" data-id="convert-your-shader" aria-label="Convert your shader">
-                        this instruction</button>.
-                    </p>
-                  </li>
-                  <li className="category__question">
-                    <span className="question__title">How to share a shader?</span>
-                    <p className="question__answer">
-                      We don't store your shaders. If you want to share your
-                      shaders, you need to create a new shader in
-                      Shadertoy.com and
-                      <button className="button-inline about-prompt-button title-text-effect__non-text" data-id="save-and-share" aria-label="Open the save and share instructions">
-                        follow these instructions</button>.
-                    </p>
-                  </li>
-                  <li className="category__question">
-                    <span className="question__title">Why is my Shadertoy shader not showing in the
-                      gallery?</span>
-                    <p className="question__answer">
-                      CineShader refreshes the shader lists from Shadertoy
-                      each day, every 6 hours. Also, please make sure it is
-                      visible by Cineshader:<br />
-                      <span className="about-credit-custom-bullet">it must include the tag "cineshader"</span>
-                      <span className="about-credit-custom-bullet">its visibility must be set to
-                        "public&nbsp;+&nbsp;API"</span>
-                    </p>
-                  </li>
-                  <li className="category__question">
-                    <span className="question__title">Why doesn't it support texture and frame buffer?</span>
-                    <p className="question__answer">
-                      Since we don’t store your shaders on our server and
-                      shader storage relies on user saving their shaders on
-                      Shadertoy, it will be troublesome for us as well as for
-                      the users to synchronise the inputs and their settings
-                      between CineShader and their shadertoy entry.
-                    </p>
-                  </li>
-                  <li className="category__question">
-                    <span className="question__title">Does it support VR mode?</span>
-                    <p className="question__answer">
-                      Yes, it does support VR through the
-                      <a className="title-text-effect__non-text" href="https://www.w3.org/TR/webxr/" target="_blank">WebXR API</a>. Open this site in your VR-headset browser to
-                      experience it!
-                    </p>
-                  </li>
-                </ul>
-              </div>
-              <div className="about__category">
-                <div className="about__category-separator" />
-                <h5 className="category__title">Changelog</h5>
-                <div className="category__text category-log">
-                  <p className="title-text-effect__non-text">
-                    <b>18/01/2021</b><br />
-                    - Fix VR bug for specific controllers<br />
-                    <br />
-                    <b>14/01/2021</b><br />
-                    - Improve VR support for specific controllers<br />
-                    <br />
-                    <b>13/01/2021</b><br />
-                    - Add VR support using WebXR API<br />
-                    <br />
-                    <b>29/10/2020</b><br />
-                    - Add gallery page<br />
-                    <br />
-                    <b>30/1/2020</b><br />
-                    - Remove axis helper<br />
-                    - Fix initial iMouse position<br />
-                    - Add anti-aliasing for HD snapshot<br />
-                    - Add changelog<br />
-                    <br />
-                    <b>28/1/2020</b><br />
-                    - Initial release<br />
-                  </p>
+                <h5 className="category__title">About this project</h5>
+                <div className="category__text">
+                  This project is based on VR and AR, and it is designed to help
+                  people understand chronic disease through an immersive,
+                  human-centered experience.
+                  <br /><br />
+                  The 3D presentation makes the subject easier to explore,
+                  easier to remember, and easier to discuss.
                 </div>
               </div>
               <div className="about__category">
@@ -275,43 +171,31 @@ export default function About() {
             </div>
           </div>
           <div className="about__intro">
-            <h4 className="about__title">About</h4>
-            <div className="about__description">
-              CineShader is a real-time 3D shader visualiser. It leverages the
-              Shadertoy.com API to bring thousands of existing shader artworks
-              into a cinematic 3D environment.
+              This project uses VR and AR to explain chronic disease through
+              an immersive exhibition.
               <br className="title-text-effect__non-text" /><br className="title-text-effect__non-text" />
-              The whole project was started as an idea of using a web demo to
-              explain what procedural noise is to our clients at Resilient Echoes. After
-              sending out the demo to some of our friends, we were encouraged
-              to add the live editor support and we decided to release it to
-              the public. <br className="title-text-effect__non-text" /><br className="title-text-effect__non-text" />
-              We are not trying to make another Shadertoy but instead hoping
-              to give the Shadertoy users an extension to demonstrate their
-              shaders with a different presentation. Hence, all shaders are
+              The goal is to make the subject clearer, more human, and easier
+              to discuss by turning it into a visual experience.
               still hosted at Shadertoy.com and reverse compatible in
               Shadertoy.
               <hr className="about-about-separator title-text-effect__non-text" />
               <div className="about-company-title title-text-effect__non-text">
-                About Us
-              </div>
-              Resilient Echoes is an award winning multidisciplinary production studio.
-              From creative to production, we collaborate with creative
-              agencies and design studios to deliver compelling, real-time
-              experiences, which go far beyond expectations.
+              The project is designed as a public-facing experience where
+              people can explore health topics in a calm, accessible way.
+              more approachable through immersion.
               <hr className="about-about-separator title-text-effect__non-text" />
               <div className="about-company-title title-text-effect__non-text">
                 Follow Us
               </div>
-              <a className="about-social button-inline title-text-effect__non-text" href="#" target="_blank">www</a>
+              <span className="about-social button-inline title-text-effect__non-text">www</span>
               |
-              <a className="about-social button-inline title-text-effect__non-text" href="#" target="_blank">tw</a>
+              <span className="about-social button-inline title-text-effect__non-text">tw</span>
               |
-              <a className="about-social button-inline title-text-effect__non-text" href="#" target="_blank">in</a>
+              <span className="about-social button-inline title-text-effect__non-text">in</span>
               |
-              <a className="about-social button-inline title-text-effect__non-text" href="#" target="_blank">ig</a>
+              <span className="about-social button-inline title-text-effect__non-text">ig</span>
               |
-              <a className="about-social button-inline title-text-effect__non-text" href="#" target="_blank">fb</a>
+              <span className="about-social button-inline title-text-effect__non-text">fb</span>
             </div>
           </div>
         </div>
@@ -494,15 +378,16 @@ export default function About() {
     </div>
     <div className="xr-landing">
       <div className="xr-landing__bg" />
-      <h3 className="xr-landing__title">Welcome to CineShader VR</h3>
+      <h3 className="xr-landing__title">A shared space for care</h3>
       <p className="xr-landing__desc">
-        Discover shader artworks<br />from the Shadertoy community<br />in a
-        cinematic VR environment.
+        An exhibition shaped with Swiss TPH, IHS, SDC, and the Government of Kosovo.<br />
+        It brings lived experience, research, and care into one shared space.<br />
+        Step inside and move through stories of resilience, dignity, and connection.
       </p>
       <button className="button-default button__webxr button__webxr--middle" aria-label="ENTER VR">
         ENTER VR
       </button>
-      <a className="xr-landing__craftedby" href="#" target="_blank">Resilient Echoes</a>
+      <span className="xr-landing__craftedby">About</span>
     </div>
   </div>
   <div className="button-wrapper__webxr--corner">

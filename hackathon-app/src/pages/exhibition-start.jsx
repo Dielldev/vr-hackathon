@@ -1,11 +1,54 @@
+import { useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { OrbitControls, useGLTF } from '@react-three/drei'
+import { Box3, Vector3 } from 'three'
 import '../exb-new.css'
 
 const START_WORLDS = [
-  { id: 'hotel-hall', title: 'Castle', available: true },
-  { id: 'hotel-hall-prototype', title: 'World 2', available: true },
-  { id: 'art-gallery', title: 'World 3', available: true },
+  { id: 'hotel-hall', title: 'Castle', available: true, modelPath: '/assets/models/hotel_hall.glb' },
+  {
+    id: 'hotel-hall-prototype',
+    title: 'World 2',
+    available: true,
+    modelPath: '/assets/models/eiffel_tower_paris_france.glb',
+  },
+  { id: 'art-gallery', title: 'World 3', available: true, modelPath: '/assets/models/art_gallery.glb' },
 ]
+
+function PreviewModel({ modelPath }) {
+  const { scene } = useGLTF(modelPath)
+  const groupRef = useRef()
+
+  const fittedScene = useMemo(() => {
+    const clone = scene.clone(true)
+    clone.updateMatrixWorld(true)
+
+    const box = new Box3().setFromObject(clone)
+    const size = box.getSize(new Vector3())
+    const center = box.getCenter(new Vector3())
+    const maxDimension = Math.max(size.x, size.y, size.z) || 1
+    const scale = 2.2 / maxDimension
+
+    clone.scale.setScalar(scale)
+    clone.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale)
+
+    return clone
+  }, [scene])
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.45
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.4) * 0.08
+    }
+  })
+
+  return (
+    <group ref={groupRef}>
+      <primitive object={fittedScene} />
+    </group>
+  )
+}
 
 export default function ExhibitionStart() {
   return (
@@ -27,9 +70,6 @@ export default function ExhibitionStart() {
             </li>
             <li className="menu__item menu__item--is-gallery">
               <Link to="/gallery" className="menu__link">Gallery</Link>
-            </li>
-            <li className="menu__item menu__item--is-editor">
-              <Link to="/editor" className="menu__link">Editor</Link>
             </li>
             <li className="menu__item menu__item--is-exhibition">
               <Link to="/exhibition" className="menu__link is-active">Exhibition</Link>
@@ -56,7 +96,13 @@ export default function ExhibitionStart() {
             role="listitem"
           >
             <div className="world-tile__preview" aria-hidden="true">
-              <span>No World Loaded</span>
+              <Canvas camera={{ position: [0, 1.3, 4.4], fov: 42 }}>
+                <ambientLight intensity={1.2} />
+                <directionalLight position={[4, 5, 6]} intensity={1.4} />
+                <spotLight position={[-5, 5, 5]} intensity={0.8} />
+                <PreviewModel modelPath={world.modelPath} />
+                <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
+              </Canvas>
             </div>
 
             <h2>{world.title}</h2>
@@ -75,3 +121,7 @@ export default function ExhibitionStart() {
     </main>
   )
 }
+
+useGLTF.preload('/assets/models/hotel_hall.glb')
+useGLTF.preload('/assets/models/eiffel_tower_paris_france.glb')
+useGLTF.preload('/assets/models/art_gallery.glb')

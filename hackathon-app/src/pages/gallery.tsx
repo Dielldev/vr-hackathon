@@ -59,9 +59,6 @@ export default function Gallery() {
           <li className="menu__item menu__item--is-gallery">
             <a href="/gallery" className="menu__link" rel="internal">Gallery</a>
           </li>
-          <li className="menu__item menu__item--is-editor">
-            <a href="/editor" className="menu__link" rel="internal">Editor</a>
-          </li>
           <li className="menu__item menu__item--is-exhibition">
             <button
               type="button"
@@ -496,10 +493,11 @@ export default function Gallery() {
     </div>
     <div className="xr-landing">
       <div className="xr-landing__bg" />
-      <h3 className="xr-landing__title">Welcome to CineShader VR</h3>
+      <h3 className="xr-landing__title">A shared space for care</h3>
       <p className="xr-landing__desc">
-        Discover shader artworks<br />from the Shadertoy community<br />in a
-        cinematic VR environment.
+        An exhibition shaped with Swiss TPH, IHS, SDC, and the Government of Kosovo.<br />
+        It brings lived experience, research, and care into one shared space.<br />
+        Step inside and move through stories of resilience, dignity, and connection.
       </p>
       <button className="button-default button__webxr button__webxr--middle" aria-label="ENTER VR">
         ENTER VR

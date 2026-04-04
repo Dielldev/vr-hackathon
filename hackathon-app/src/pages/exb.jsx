@@ -7,13 +7,22 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
 import { DEFAULT_WORLD_ID, WORLD_REGISTRY } from './worlds'
+import { getWorldTransform } from '../utils/worldTransforms.js'
 import '../exb.css'
 
 extend({ EffectComposer, RenderPass, ShaderPass })
 
-function Model({ modelPath, ...props }) {
+function Model({ modelPath, scale = 1, position = [0, 0, 0], rotationYDeg = 0, ...props }) {
   const { scene } = useGLTF(modelPath)
-  return <primitive object={scene} {...props} />
+  return (
+    <primitive
+      object={scene}
+      scale={scale}
+      position={position}
+      rotation={[0, (rotationYDeg * Math.PI) / 180, 0]}
+      {...props}
+    />
+  )
 }
 
 const NAV_NODES = {
@@ -343,6 +352,7 @@ export default function Exhibition() {
   const [searchParams] = useSearchParams()
   const selectedWorldId = worldId || searchParams.get('world') || DEFAULT_WORLD_ID
   const selectedWorld = WORLD_REGISTRY[selectedWorldId] || WORLD_REGISTRY[DEFAULT_WORLD_ID]
+  const transform = getWorldTransform(selectedWorld.id)
   const exhibits = selectedWorld.exhibits
   const [saturation, setSaturation] = useState(1.0)
   const [activeNodeId, setActiveNodeId] = useState('entry')
@@ -690,7 +700,12 @@ export default function Exhibition() {
             exhibits={exhibits}
             beaconVariant={selectedWorld.beaconVariant}
           />
-          <Model modelPath={selectedWorld.modelPath} />
+          <Model
+            modelPath={selectedWorld.modelPath}
+            scale={transform.scale ?? 1}
+            position={[transform.posX ?? 0, transform.posY ?? 0, transform.posZ ?? 0]}
+            rotationYDeg={transform.rotationYDeg ?? 0}
+          />
         </Suspense>
         <Effects saturation={saturation} />
       </Canvas>
