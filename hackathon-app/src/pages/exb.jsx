@@ -423,7 +423,12 @@ export default function Exhibition() {
   const [isFreeNav, setIsFreeNav] = useState(false)
   const [zoomedExhibit, setZoomedExhibit] = useState(null)
   const [isVRMode, setIsVRMode] = useState(searchParams.get('vr') === 'true')
+  const [isXRActive, setIsXRActive] = useState(false)
+  const [xrSupported, setXrSupported] = useState(true)
+  const [xrMessage, setXrMessage] = useState('')
   const interactionTimerRef = useRef(null)
+  const rendererRef = useRef(null)
+  const xrSessionRef = useRef(null)
   
   // Mouse look state
   const [yaw, setYaw] = useState(0)
@@ -433,6 +438,77 @@ export default function Exhibition() {
   const lastTouch = useRef({ x: 0, y: 0 })
 
   const currentNode = NAV_NODES[activeNodeId]
+
+  const endVRSession = useCallback(async () => {
+    const activeSession = xrSessionRef.current || rendererRef.current?.xr?.getSession?.()
+    if (!activeSession) {
+      return
+    }
+
+    try {
+      await activeSession.end()
+    } catch {
+      // The session may already be ended by the headset runtime.
+    }
+  }, [])
+
+  const startVRSession = useCallback(
+    async ({ fromUserAction = false } = {}) => {
+      if (!isVRMode || !rendererRef.current) {
+        return
+      }
+
+      if (!navigator.xr || typeof navigator.xr.isSessionSupported !== 'function') {
+        setXrSupported(false)
+        setXrMessage('WebXR is unavailable on this device or browser.')
+        return
+      }
+
+      try {
+        const supported = await navigator.xr.isSessionSupported('immersive-vr')
+        setXrSupported(supported)
+
+        if (!supported) {
+          setXrMessage('Immersive VR is not supported in this browser.')
+          return
+        }
+
+        const existingSession = rendererRef.current.xr.getSession()
+        if (existingSession) {
+          xrSessionRef.current = existingSession
+          setIsXRActive(true)
+          setXrMessage('')
+          return
+        }
+
+        const session = await navigator.xr.requestSession('immersive-vr', {
+          optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'],
+        })
+
+        session.addEventListener('end', () => {
+          xrSessionRef.current = null
+          setIsXRActive(false)
+          setIsVRMode(false)
+        })
+
+        await rendererRef.current.xr.setSession(session)
+        xrSessionRef.current = session
+        setIsXRActive(true)
+        setXrMessage('')
+      } catch (error) {
+        const message = String(error?.message ?? error ?? '')
+        const needsUserGesture = /user gesture|user activation|must be activated/i.test(message)
+
+        if (!fromUserAction && needsUserGesture) {
+          setXrMessage('Tap "Enter Immersive VR" to start the headset session.')
+          return
+        }
+
+        setXrMessage('Unable to start VR session. Check headset/browser WebXR support.')
+      }
+    },
+    [isVRMode],
+  )
 
   const showTemporaryMessage = (text, duration = 3000) => {
     setInteractionText(text)
@@ -607,6 +683,23 @@ export default function Exhibition() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!isVRMode) {
+      setIsXRActive(false)
+      setXrMessage('')
+      void endVRSession()
+      return
+    }
+
+    void startVRSession()
+  }, [isVRMode, startVRSession, endVRSession])
+
+  useEffect(() => {
+    return () => {
+      void endVRSession()
+    }
+  }, [endVRSession])
+
   return (
     <div 
       className="exhibition-page"
@@ -621,6 +714,16 @@ export default function Exhibition() {
       <div className="exhibition-hud">
         <p className="exhibition-hud__line">World: {selectedWorld.label}</p>
         {isVRMode && <p className="exhibition-hud__line" style={{ color: '#ff6ba9' }}>🎮 VR MODE</p>}
+        {isVRMode && !isXRActive && xrSupported && (
+          <button
+            className="exhibition-nav-toggle exhibition-nav-toggle--vr-exit"
+            onClick={() => void startVRSession({ fromUserAction: true })}
+            title="Start immersive headset session"
+          >
+            Enter Immersive VR
+          </button>
+        )}
+        {isVRMode && xrMessage && <p className="exhibition-hud__line">{xrMessage}</p>}
         {!isVRMode && !isFreeNav && <p className="exhibition-hud__line">Current: {activeNodeId}</p>}
         {!isVRMode && !isFreeNav && <p className="exhibition-hud__line">Drag to look around</p>}
         {!isVRMode && isFreeNav && <p className="exhibition-hud__line">Click an exhibit to view</p>}
@@ -759,7 +862,15 @@ export default function Exhibition() {
         </div>
       )}
 
-      <Canvas className="exhibition-canvas" camera={{ position: [0, 1.6, 5] }} vr={isVRMode}>
+      <Canvas
+        className="exhibition-canvas"
+        camera={{ position: [0, 1.6, 5] }}
+        onCreated={({ gl }) => {
+          rendererRef.current = gl
+          gl.xr.enabled = true
+          gl.xr.setReferenceSpaceType('local-floor')
+        }}
+      >
         <ambientLight intensity={1} />
         <directionalLight position={[5, 5, 5]} />
         <Suspense fallback={null}>
