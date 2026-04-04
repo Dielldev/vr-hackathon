@@ -1,8 +1,8 @@
 import { Canvas, useFrame, useThree, extend } from '@react-three/fiber'
 import { PointerLockControls, useGLTF } from '@react-three/drei'
-import { useRef, useEffect, useState, Suspense, useMemo } from 'react'
+import { useRef, useEffect, useState, Suspense } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Box3, Vector3 } from 'three'
+import { Vector3 } from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
@@ -13,32 +13,6 @@ extend({ EffectComposer, RenderPass, ShaderPass })
 function Model(props) {
   const { scene } = useGLTF('/assets/models/hotel_hall.glb')
   return <primitive object={scene} {...props} />
-}
-
-function WorldCardPreviewModel() {
-  const { scene } = useGLTF('/assets/models/hotel_hall.glb')
-  const previewRef = useRef()
-  const centeredScene = useMemo(() => {
-    const clonedScene = scene.clone(true)
-    const bounds = new Box3().setFromObject(clonedScene)
-    const center = bounds.getCenter(new Vector3())
-    clonedScene.position.sub(center)
-    return clonedScene
-  }, [scene])
-
-  useFrame((state) => {
-    if (!previewRef.current) {
-      return
-    }
-
-    previewRef.current.rotation.y = state.clock.elapsedTime * 0.35
-  })
-
-  return (
-    <group ref={previewRef} position={[0, -0.05, 0]} scale={[0.14, 0.14, 0.14]}>
-      <primitive object={centeredScene} />
-    </group>
-  )
 }
 
 // Glowing block component
@@ -334,99 +308,14 @@ export default function Exhibition() {
   if (location.pathname === '/exhibition') {
     return (
       <div className="exhibition-entry">
-        <div className="exhibition-entry__backdrop" aria-hidden="true">
-          <span className="exhibition-entry__backdrop-glow exhibition-entry__backdrop-glow--one" />
-          <span className="exhibition-entry__backdrop-glow exhibition-entry__backdrop-glow--two" />
-          <span className="exhibition-entry__backdrop-grain" />
-        </div>
-        <header className="header">
-          <nav className="header__menu">
-            <a href="#" target="_blank">
-              <div className="header__menu_item--lab">
-                <span className="header__menu_lab_text">Resilient Echoes</span>
-              </div>
-            </a>
-            <ul className="menu__items">
-              <li className="menu__item">
-                <button className="menu__audio" aria-label="Toggle Audio" />
-              </li>
-              <li className="menu__item menu__item--is-separator"><span>|</span></li>
-              <li className="menu__item">
-                <a href="/" className="menu__link" rel="internal">Home</a>
-              </li>
-              <li className="menu__item menu__item--is-gallery">
-                <a href="/gallery" className="menu__link" rel="internal">Gallery</a>
-              </li>
-              <li className="menu__item menu__item--is-editor">
-                <a href="/editor" className="menu__link" rel="internal">Editor</a>
-              </li>
-              <li className="menu__item menu__item--is-exhibition">
-                <a href="/exhibition" className="menu__link is-active" rel="internal">Exhibition</a>
-              </li>
-              <li className="menu__item">
-                <a href="/about" className="menu__link" rel="internal">About</a>
-              </li>
-            </ul>
-          </nav>
-        </header>
-
-        <div className="exhibition-entry__content">
-          <div className="exhibition-entry__card">
-            <h1 className="exhibition-entry__title">Choose A World</h1>
-            <p className="exhibition-entry__text">
-              Select a world to enter the exhibition experience.
-            </p>
-
-            <div className="exhibition-worlds" role="list" aria-label="Exhibition worlds">
-              <Link to="/exhibition/start" className="exhibition-world" role="listitem" aria-label="Enter Castle world">
-                <div className="exhibition-world__preview" aria-hidden="true">
-                  <Canvas className="exhibition-world__preview-canvas" camera={{ position: [0, 0.45, 4.9], fov: 42 }} dpr={[1, 1.5]}>
-                    <color attach="background" args={['#081821']} />
-                    <ambientLight intensity={0.8} />
-                    <directionalLight position={[3, 5, 4]} intensity={1.2} />
-                    <Suspense fallback={null}>
-                      <WorldCardPreviewModel />
-                    </Suspense>
-                  </Canvas>
-                </div>
-                <h2 className="exhibition-world__title">Castle</h2>
-                <p className="exhibition-world__subtitle">Available now</p>
-                <span className="button-default exhibition-world__action">Join World</span>
-              </Link>
-
-              <article className="exhibition-world exhibition-world--disabled" role="listitem" aria-label="Coming soon world">
-                <div className="exhibition-world__preview exhibition-world__preview--disabled" aria-hidden="true">
-                  <Canvas className="exhibition-world__preview-canvas" camera={{ position: [0, 0.45, 4.9], fov: 42 }} dpr={[1, 1.5]}>
-                    <color attach="background" args={['#07131a']} />
-                    <ambientLight intensity={0.7} />
-                    <directionalLight position={[3, 5, 4]} intensity={1.05} />
-                    <Suspense fallback={null}>
-                      <WorldCardPreviewModel />
-                    </Suspense>
-                  </Canvas>
-                </div>
-                <h2 className="exhibition-world__title">Coming Soon</h2>
-                <p className="exhibition-world__subtitle">World 2</p>
-                <span className="button-default exhibition-world__action">Not Available</span>
-              </article>
-
-              <article className="exhibition-world exhibition-world--disabled" role="listitem" aria-label="Coming soon world">
-                <div className="exhibition-world__preview exhibition-world__preview--disabled" aria-hidden="true">
-                  <Canvas className="exhibition-world__preview-canvas" camera={{ position: [0, 0.45, 4.9], fov: 42 }} dpr={[1, 1.5]}>
-                    <color attach="background" args={['#07131a']} />
-                    <ambientLight intensity={0.7} />
-                    <directionalLight position={[3, 5, 4]} intensity={1.05} />
-                    <Suspense fallback={null}>
-                      <WorldCardPreviewModel />
-                    </Suspense>
-                  </Canvas>
-                </div>
-                <h2 className="exhibition-world__title">Coming Soon</h2>
-                <p className="exhibition-world__subtitle">World 3</p>
-                <span className="button-default exhibition-world__action">Not Available</span>
-              </article>
-            </div>
-          </div>
+        <div className="exhibition-entry__card">
+          <h1 className="exhibition-entry__title">Enter The Exhibition</h1>
+          <p className="exhibition-entry__text">
+            Step into the 3D hall and explore the interactive installation.
+          </p>
+          <Link to="/exhibition/start" className="exhibition-entry__button">
+            Start
+          </Link>
         </div>
       </div>
     )
