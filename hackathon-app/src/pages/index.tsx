@@ -62,7 +62,14 @@ export default function Home() {
             <a href="/" className="menu__link" rel="internal">Home</a>
           </li>
           <li className="menu__item menu__item--is-gallery">
-            <a href="/gallery" className="menu__link" rel="internal">Gallery</a>
+            <button
+              type="button"
+              className="menu__link"
+              onClick={() => navigate('/gallery')}
+              style={{ background: 'none', border: 0, padding: 0 }}
+            >
+              Gallery
+            </button>
           </li>
           <li className="menu__item menu__item--is-exhibition">
             <button

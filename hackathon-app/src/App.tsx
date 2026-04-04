@@ -21,8 +21,9 @@ function AppRoutes() {
     const isExhibitionRoute = path.startsWith('/exhibition')
     const isAdminHomeRoute = path === '/admin'
     const isAdminMapEditorRoute = path.startsWith('/admin/map-editor')
+    const isGalleryRoute = path === '/gallery'
 
-    if (isExhibitionRoute || isAdminHomeRoute || isAdminMapEditorRoute) {
+    if (isExhibitionRoute || isAdminHomeRoute || isAdminMapEditorRoute || isGalleryRoute) {
       return
     }
 

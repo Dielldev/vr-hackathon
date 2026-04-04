@@ -55,7 +55,14 @@ export default function About() {
             <a href="/" className="menu__link" rel="internal">Home</a>
           </li>
           <li className="menu__item menu__item--is-gallery">
-            <a href="/gallery" className="menu__link" rel="internal">Gallery</a>
+            <button
+              type="button"
+              className="menu__link"
+              onClick={() => window.location.assign('/gallery')}
+              style={{ background: 'none', border: 0, padding: 0 }}
+            >
+              Gallery
+            </button>
           </li>
           <li className="menu__item menu__item--is-exhibition">
             <button
