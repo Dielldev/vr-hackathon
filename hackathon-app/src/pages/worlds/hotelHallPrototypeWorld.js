@@ -1,7 +1,7 @@
 export const hotelHallPrototypeWorld = {
   id: 'hotel-hall-prototype',
   label: 'Hotel Hall Test',
-  modelPath: '/assets/models/eiffel_tower_paris_france.glb',
+  modelPath: '/assets/models/hotel_hall.glb',
   beaconVariant: 'ring',
   exhibits: [
     {

@@ -22,7 +22,7 @@ const WORLD_OPTIONS = [
 
 const WORLD_MODEL_PATHS: Record<string, string> = {
   'hotel-hall': '/assets/models/hotel_hall.glb',
-  'hotel-hall-prototype': '/assets/models/eiffel_tower_paris_france.glb',
+  'hotel-hall-prototype': '/assets/models/hotel_hall.glb',
   'art-gallery': '/assets/models/art_gallery.glb',
 }
 
@@ -478,5 +478,5 @@ export default function AdminPage() {
 }
 
 useGLTF.preload('/assets/models/hotel_hall.glb')
-useGLTF.preload('/assets/models/eiffel_tower_paris_france.glb')
+useGLTF.preload('/assets/models/hotel_hall.glb')
 useGLTF.preload('/assets/models/art_gallery.glb')

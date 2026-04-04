@@ -787,4 +787,4 @@ export default function Exhibition() {
   )
 }
 
-useGLTF.preload('/assets/models/eiffel_tower_paris_france.glb')
+useGLTF.preload('/assets/models/hotel_hall.glb')

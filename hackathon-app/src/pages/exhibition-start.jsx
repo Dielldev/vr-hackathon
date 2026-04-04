@@ -11,7 +11,7 @@ const START_WORLDS = [
     id: 'hotel-hall-prototype',
     title: 'World 2',
     available: true,
-    modelPath: '/assets/models/eiffel_tower_paris_france.glb',
+    modelPath: '/assets/models/hotel_hall.glb',
   },
   { id: 'art-gallery', title: 'World 3', available: true, modelPath: '/assets/models/art_gallery.glb' },
 ]
@@ -132,5 +132,5 @@ export default function ExhibitionStart() {
 }
 
 useGLTF.preload('/assets/models/hotel_hall.glb')
-useGLTF.preload('/assets/models/eiffel_tower_paris_france.glb')
+useGLTF.preload('/assets/models/hotel_hall.glb')
 useGLTF.preload('/assets/models/art_gallery.glb')
