@@ -56248,7 +56248,7 @@
           },
           {
             id: "domain_warp",
-            title: "Shared Layers",
+            title: "Shared Stories",
             isSpline: !0,
             isEditable: !1,
             shader:
@@ -56262,7 +56262,7 @@
                   "#define GLSLIFY 1\nfloat fbm( vec3 p ) {\n    float f = 0.0;\n    f += 0.5000*snoise( p ); p = p*2.02;\n    f += 0.2500*snoise( p ); p = p*2.03;\n    f += 0.1250*snoise( p ); p = p*2.01;\n    f += 0.0625*snoise( p );\n    return f/0.9375;\n}\n\nfloat pattern(vec3 p ) {\n    vec3 q = vec3( fbm( p ), fbm( p + vec3(5.2,1.3, 2.0) ), 0.0 );\n    return fbm( p + 4.0*q );\n}\n\nvoid mainImage( out vec4 fragColor, in vec2 fragCoord ) {\n    vec2 uv = fragCoord / iResolution.xy;\n      float mouseRatio = smoothstep(100.0, 0.0, length(iMouse.xy - fragCoord.xy));\n    float noise = 0.25 + pattern(vec3(uv * 0.75, iTime * 0.03 + 0.1 * mouseRatio)) * 0.75;\n    fragColor = vec4(1.0, 1.0, 1.0, noise);\n}",
                 ]),
               ),
-            desc: 'A shifting exhibition layer that bends perspective and turns the room into a shared passage of care',
+            desc: 'Many people suffer from chronic diseases, and this virtual world is here to help people understand and care.',
           },
           {
             id: "turbulence",
@@ -56280,7 +56280,7 @@
                   "#define GLSLIFY 1\nfloat fbm( vec3 p ) {\n        float f = 0.0;\n        f += 0.5000*snoise( p ); p = p*2.02;\n        f += 0.2500*snoise( p ); p = p*2.03;\n        f += 0.1250*snoise( p ); p = p*2.01;\n        f += 0.0625*snoise( p );\n        return f/0.9375;\n}\n\nvoid mainImage( out vec4 fragColor, in vec2 fragCoord ) {\n    vec2 uv = fragCoord / iResolution.xy;\n    float mouseRatio = smoothstep(100.0, 0.0, length(iMouse.xy - fragCoord.xy));\n    float noise = 0.25 + fbm(vec3(uv * 12.0 + (iMouse.xy - fragCoord.xy) * mouseRatio * 0.05, iTime * 0.18 + 0.5 * mouseRatio));\n    noise *= 0.25 + snoise(vec3(uv * 4.0 + 1.5, iTime * 0.15));\n    fragColor = vec4(1.0, 1.0, 1.0, noise);\n}",
                 ]),
               ),
-                    desc: "A shared exhibition space shaped by Swiss TPH, IHS, SDC, and the Government of Kosovo. It connects chronic illness, care, and lived experience in one continuous narrative.",
+                    desc: "Many people suffer from chronic diseases. We are trying to help through a virtual world.",
           },
           {
             id: "worley3d",

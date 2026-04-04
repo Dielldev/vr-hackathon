@@ -109,9 +109,18 @@ export default function ExhibitionStart() {
             <p>{world.available ? 'Available Now' : 'Coming Soon'}</p>
 
             {world.available ? (
-              <Link className="world-tile__start" to={`/exhibition/world/${world.id}`}>
-                Enter World
-              </Link>
+              <div className="world-tile__actions">
+                <Link className="world-tile__start" to={`/exhibition/world/${world.id}`}>
+                  Enter World
+                </Link>
+                <Link 
+                  className="world-tile__start world-tile__start--vr" 
+                  to={`/exhibition/world/${world.id}?vr=true`}
+                  title="Enter VR mode - requires a VR headset"
+                >
+                  🎮 VR Mode
+                </Link>
+              </div>
             ) : (
               <span className="world-tile__locked-pill">Not Available</span>
             )}

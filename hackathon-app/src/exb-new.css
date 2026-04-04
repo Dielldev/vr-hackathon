@@ -89,6 +89,27 @@
   color: #00ffad;
 }
 
+.exhibition-nav-toggle--vr-exit {
+  border-color: rgba(255, 107, 169, 0.72);
+  color: #ffb3d9;
+  animation: vrPulse 2s ease-in-out infinite;
+}
+
+.exhibition-nav-toggle--vr-exit:hover {
+  border-color: #ff8ec4;
+  color: #fff0f7;
+  animation: none;
+}
+
+@keyframes vrPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
 /* Exhibit labels in 3D space */
 .exhibit-label {
   padding: 8px 14px;
@@ -753,9 +774,14 @@
   font-weight: 100;
 }
 
-.world-tile__start {
+.world-tile__actions {
+  display: flex;
+  gap: 10px;
   margin-top: auto;
-  width: fit-content;
+  flex-wrap: wrap;
+}
+
+.world-tile__start {
   text-decoration: none;
   font-size: 0.78rem;
   line-height: 1;
@@ -766,12 +792,28 @@
   border: 1px solid rgba(129, 213, 191, 0.72);
   color: #aee9da;
   transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
 }
 
 .world-tile__start:hover {
   background: rgba(129, 213, 191, 0.16);
   border-color: #9de6d4;
   color: #d8fff5;
+}
+
+.world-tile__start--vr {
+  border-color: rgba(255, 107, 169, 0.72);
+  color: #ffb3d9;
+  flex: 0 1 auto;
+  min-width: auto;
+}
+
+.world-tile__start--vr:hover {
+  background: rgba(255, 107, 169, 0.16);
+  border-color: #ff8ec4;
+  color: #fff0f7;
 }
 
 .world-tile--available {

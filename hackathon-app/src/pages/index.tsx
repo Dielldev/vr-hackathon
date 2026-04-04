@@ -15,9 +15,9 @@ export default function Home() {
   <link rel="stylesheet" href="https://use.typekit.net/upz7xsh.css" />
   <link rel="stylesheet" href="assets/css/index.css" />
   <link rel="dns-prefetch" href="https://shadertoy.com" />
-  <meta name="description" content="An exhibition space shaped with Swiss TPH, IHS, SDC, and the Government of Kosovo." />
-  <meta name="twitter:description" content="An exhibition space shaped with Swiss TPH, IHS, SDC, and the Government of Kosovo." />
-  <meta property="og:description" content="An exhibition space shaped with Swiss TPH, IHS, SDC, and the Government of Kosovo." />
+  <meta name="description" content="Many people suffer from chronic diseases. We are using a virtual world to support understanding, care, and healing." />
+  <meta name="twitter:description" content="Many people suffer from chronic diseases. We are using a virtual world to support understanding, care, and healing." />
+  <meta property="og:description" content="Many people suffer from chronic diseases. We are using a virtual world to support understanding, care, and healing." />
   <meta name="twitter:title" content="A shared space for care" />
   <meta property="og:site_name" content="A shared space for care" />
   <meta property="og:title" content="A shared space for care" />
@@ -490,9 +490,9 @@ export default function Home() {
       <div className="xr-landing__bg" />
       <h3 className="xr-landing__title">A shared space for care</h3>
       <p className="xr-landing__desc">
-        An exhibition shaped with Swiss TPH, IHS, SDC, and the Government of Kosovo.<br />
-        It brings lived experience, research, and care into one shared space.<br />
-        Step inside and move through stories of resilience, dignity, and connection.
+        Many people suffer from chronic diseases.<br />
+        We are trying to help through a virtual world.<br />
+        This space shares stories, support, and hope.
       </p>
       <button className="button-default button__webxr button__webxr--middle" aria-label="ENTER VR">
         ENTER VR

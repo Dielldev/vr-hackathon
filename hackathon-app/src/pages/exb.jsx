@@ -346,6 +346,64 @@ function CameraController({ setSaturation, activeNodeId, setActiveNodeId, target
   )
 }
 
+// VR Camera Controller - Gaze-based interaction for VR mode
+function VRCameraController({ exhibits, onExhibitClick }) {
+  const { camera } = useThree()
+  const gazeTargetRef = useRef(null)
+  const gazeDurationRef = useRef(0)
+  const GAZE_DURATION_THRESHOLD = 1.5 // seconds to trigger interaction
+  
+  useFrame(() => {
+    // Use camera's forward direction as gaze direction
+    const direction = new Vector3(0, 0, -1).applyQuaternion(camera.quaternion)
+    
+    // Check if gazing at any exhibit
+    let gazedExhibit = null
+    for (const exhibit of exhibits) {
+      const distance = camera.position.distanceTo(new Vector3(...exhibit.position))
+      if (distance < 6) { // Within interaction range
+        const dirToExhibit = new Vector3(...exhibit.position).sub(camera.position).normalize()
+        const dotProduct = direction.dot(dirToExhibit)
+        if (dotProduct > 0.8) { // Roughly looking at it
+          gazedExhibit = exhibit
+          break
+        }
+      }
+    }
+    
+    // Update gaze duration
+    if (gazedExhibit && gazeTargetRef.current?.id === gazedExhibit.id) {
+      gazeDurationRef.current += 0.016 // ~60fps
+      if (gazeDurationRef.current >= GAZE_DURATION_THRESHOLD) {
+        onExhibitClick(gazedExhibit)
+        gazeDurationRef.current = 0
+      }
+    } else if (gazedExhibit) {
+      gazeTargetRef.current = gazedExhibit
+      gazeDurationRef.current = 0
+    } else {
+      gazeTargetRef.current = null
+      gazeDurationRef.current = 0
+    }
+  })
+  
+  return (
+    <>
+      {exhibits.map((exhibit, index) => (
+        <ExhibitBeacon
+          key={exhibit.id}
+          position={exhibit.position}
+          color={exhibit.color}
+          variant="crystal"
+          phaseOffset={index * 0.8}
+          isFreeNav={true}
+          onClick={() => onExhibitClick(exhibit)}
+        />
+      ))}
+    </>
+  )
+}
+
 export default function Exhibition() {
   const navigate = useNavigate()
   const { worldId } = useParams()
@@ -364,6 +422,7 @@ export default function Exhibition() {
   const [nearbyExhibit, setNearbyExhibit] = useState(null)
   const [isFreeNav, setIsFreeNav] = useState(false)
   const [zoomedExhibit, setZoomedExhibit] = useState(null)
+  const [isVRMode, setIsVRMode] = useState(searchParams.get('vr') === 'true')
   const interactionTimerRef = useRef(null)
   
   // Mouse look state
@@ -509,21 +568,27 @@ export default function Exhibition() {
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.code === 'Escape') {
-        navigate('/exhibition')
+        if (isVRMode) {
+          setIsVRMode(false)
+        } else {
+          navigate('/exhibition')
+        }
       }
-      if (e.code === 'ArrowUp') {
-        moveToDirection('forward')
+      if (!isVRMode) {
+        if (e.code === 'ArrowUp') {
+          moveToDirection('forward')
+        }
+        if (e.code === 'ArrowDown') {
+          moveToDirection('back')
+        }
+        if (e.code === 'ArrowLeft') {
+          moveToDirection('left')
+        }
+        if (e.code === 'ArrowRight') {
+          moveToDirection('right')
+        }
       }
-      if (e.code === 'ArrowDown') {
-        moveToDirection('back')
-      }
-      if (e.code === 'ArrowLeft') {
-        moveToDirection('left')
-      }
-      if (e.code === 'ArrowRight') {
-        moveToDirection('right')
-      }
-      if (e.code === 'Space' && nearbyExhibit) {
+      if (e.code === 'Space' && nearbyExhibit && !isVRMode) {
         openExhibitPopup()
       }
     }
@@ -532,7 +597,7 @@ export default function Exhibition() {
     return () => {
       document.removeEventListener('keydown', onKeyDown)
     }
-  }, [navigate, activeNodeId, isMoving, nearbyExhibit])
+  }, [navigate, activeNodeId, isMoving, nearbyExhibit, isVRMode])
 
   useEffect(() => {
     return () => {
@@ -545,28 +610,41 @@ export default function Exhibition() {
   return (
     <div 
       className="exhibition-page"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      onMouseDown={!isVRMode ? handleMouseDown : undefined}
+      onMouseMove={!isVRMode ? handleMouseMove : undefined}
+      onMouseUp={!isVRMode ? handleMouseUp : undefined}
+      onMouseLeave={!isVRMode ? handleMouseUp : undefined}
+      onTouchStart={!isVRMode ? handleTouchStart : undefined}
+      onTouchMove={!isVRMode ? handleTouchMove : undefined}
+      onTouchEnd={!isVRMode ? handleTouchEnd : undefined}
     >
       <div className="exhibition-hud">
         <p className="exhibition-hud__line">World: {selectedWorld.label}</p>
-        {!isFreeNav && <p className="exhibition-hud__line">Current: {activeNodeId}</p>}
-        {!isFreeNav && <p className="exhibition-hud__line">Drag to look around</p>}
-        {isFreeNav && <p className="exhibition-hud__line">Click an exhibit to view</p>}
-        <button 
-          className={`exhibition-nav-toggle ${isFreeNav ? 'exhibition-nav-toggle--active' : ''}`}
-          onClick={() => setIsFreeNav(!isFreeNav)}
-        >
-          {isFreeNav ? '🎯 Free Nav' : '🚶 Guided'}
-        </button>
+        {isVRMode && <p className="exhibition-hud__line" style={{ color: '#ff6ba9' }}>🎮 VR MODE</p>}
+        {!isVRMode && !isFreeNav && <p className="exhibition-hud__line">Current: {activeNodeId}</p>}
+        {!isVRMode && !isFreeNav && <p className="exhibition-hud__line">Drag to look around</p>}
+        {!isVRMode && isFreeNav && <p className="exhibition-hud__line">Click an exhibit to view</p>}
+        {isVRMode && <p className="exhibition-hud__line">Look at objects to interact</p>}
+        {!isVRMode && (
+          <button 
+            className={`exhibition-nav-toggle ${isFreeNav ? 'exhibition-nav-toggle--active' : ''}`}
+            onClick={() => setIsFreeNav(!isFreeNav)}
+          >
+            {isFreeNav ? '🎯 Free Nav' : '🚶 Guided'}
+          </button>
+        )}
+        {isVRMode && (
+          <button 
+            className="exhibition-nav-toggle exhibition-nav-toggle--vr-exit"
+            onClick={() => setIsVRMode(false)}
+            title="Exit VR mode (ESC)"
+          >
+            Exit VR
+          </button>
+        )}
       </div>
 
-      {!isFreeNav && nearbyExhibit && !showPopup && (
+      {!isVRMode && !isFreeNav && nearbyExhibit && !showPopup && (
         <div className="exhibition-interact-prompt">
           <button className="exhibition-interact-btn" onClick={openExhibitPopup}>
             View {nearbyExhibit.label}
@@ -608,7 +686,7 @@ export default function Exhibition() {
         </div>
       )}
 
-      {!isFreeNav && (
+      {!isVRMode && !isFreeNav && (
         <div className="exhibition-nav" aria-label="Street view navigation">
           {currentNode?.links?.left && (
             <div
@@ -681,25 +759,34 @@ export default function Exhibition() {
         </div>
       )}
 
-      <Canvas className="exhibition-canvas" camera={{ position: [0, 1.6, 5] }}>
+      <Canvas className="exhibition-canvas" camera={{ position: [0, 1.6, 5] }} vr={isVRMode}>
         <ambientLight intensity={1} />
         <directionalLight position={[5, 5, 5]} />
         <Suspense fallback={null}>
-          <CameraController
-            setSaturation={setSaturation}
-            activeNodeId={activeNodeId}
-            setActiveNodeId={setActiveNodeId}
-            targetNodeId={targetNodeId}
-            setIsMoving={setIsMoving}
-            onArriveAtExhibit={onArriveAtExhibit}
-            yaw={yaw}
-            pitch={pitch}
-            isFreeNav={isFreeNav}
-            onExhibitClick={onExhibitClick}
-            zoomedExhibit={zoomedExhibit}
-            exhibits={exhibits}
-            beaconVariant={selectedWorld.beaconVariant}
-          />
+          {!isVRMode ? (
+            <>
+              <CameraController
+                setSaturation={setSaturation}
+                activeNodeId={activeNodeId}
+                setActiveNodeId={setActiveNodeId}
+                targetNodeId={targetNodeId}
+                setIsMoving={setIsMoving}
+                onArriveAtExhibit={onArriveAtExhibit}
+                yaw={yaw}
+                pitch={pitch}
+                isFreeNav={isFreeNav}
+                onExhibitClick={onExhibitClick}
+                zoomedExhibit={zoomedExhibit}
+                exhibits={exhibits}
+                beaconVariant={selectedWorld.beaconVariant}
+              />
+              <Effects saturation={saturation} />
+            </>
+          ) : (
+            <>
+              <VRCameraController exhibits={exhibits} onExhibitClick={onExhibitClick} />
+            </>
+          )}
           <Model
             modelPath={selectedWorld.modelPath}
             scale={transform.scale ?? 1}
@@ -707,7 +794,6 @@ export default function Exhibition() {
             rotationYDeg={transform.rotationYDeg ?? 0}
           />
         </Suspense>
-        <Effects saturation={saturation} />
       </Canvas>
     </div>
   )
