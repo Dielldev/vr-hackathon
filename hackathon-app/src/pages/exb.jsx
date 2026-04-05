@@ -1,13 +1,17 @@
 import { Canvas, useFrame, useThree, extend } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
-import { useRef, useEffect, useState, Suspense, useCallback } from 'react'
+import { useRef, useEffect, useState, Suspense, useCallback, useMemo } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Vector3, Quaternion } from 'three'
+import { Vector3, Quaternion, Box3, BufferGeometry, Float32BufferAttribute, Line as ThreeLine, LineBasicMaterial } from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
 import { DEFAULT_WORLD_ID, WORLD_REGISTRY } from './worlds'
 import { getWorldTransform } from '../utils/worldTransforms.js'
+import bloodPressureObjectPath from '../assets/objects3D/bloodpresure.glb'
+import penObjectPath from '../assets/objects3D/pen3D.glb'
+import perlapsaObjectPath from '../assets/objects3D/perlapsa.glb'
+import portraitObjectPath from '../assets/objects3D/portrait.glb'
 import '../exb.css'
 
 extend({ EffectComposer, RenderPass, ShaderPass })
@@ -24,7 +28,6 @@ function Model({ modelPath, scale = 1, position = [0, 0, 0], rotationYDeg = 0, .
     />
   )
 }
-
 const NAV_NODES = {
   entry: {
     id: 'entry',
@@ -70,58 +73,165 @@ const NAV_NODES = {
   },
 }
 
-function ExhibitBeacon({ position, color, variant = 'crystal', phaseOffset = 0, onClick, isFreeNav }) {
+const HOTEL_HALL_EXHIBIT_MODELS = {
+  'memory-cube': bloodPressureObjectPath,
+  'signal-orb': penObjectPath,
+  'echo-prism': perlapsaObjectPath,
+  'time-gate': portraitObjectPath,
+}
+
+function ExhibitObjectModel({ modelPath }) {
+  const { scene } = useGLTF(modelPath)
+  const objectRef = useRef()
+  const clonedScene = useMemo(() => scene.clone(true), [scene])
+
+  useFrame((_, delta) => {
+    if (objectRef.current) {
+      objectRef.current.rotation.y += delta * 0.9
+      objectRef.current.scale.setScalar(0.24)
+    }
+  })
+
+  return (
+    <primitive
+      ref={objectRef}
+      object={clonedScene}
+      position={[0, 0, 0]}
+      raycast={() => null}
+    />
+  )
+}
+
+function PopupPreviewModel({ modelPath }) {
+  const { scene } = useGLTF(modelPath)
+  const modelRef = useRef()
+  const clonedScene = useMemo(() => {
+    const previewScene = scene.clone(true)
+
+    previewScene.traverse((node) => {
+      if (!node.isMesh) {
+        return
+      }
+
+      node.castShadow = true
+      node.receiveShadow = true
+
+      const materials = Array.isArray(node.material) ? node.material : [node.material]
+      for (const material of materials) {
+        if (material && 'emissiveIntensity' in material) {
+          material.emissiveIntensity = Math.max(material.emissiveIntensity || 0, 0.35)
+          material.toneMapped = false
+        }
+      }
+    })
+
+    previewScene.updateMatrixWorld(true)
+    const box = new Box3().setFromObject(previewScene)
+    const size = box.getSize(new Vector3())
+    const center = box.getCenter(new Vector3())
+    const maxDimension = Math.max(size.x, size.y, size.z) || 1
+    const scale = 2.75 / maxDimension
+
+    previewScene.scale.setScalar(scale)
+    previewScene.position.set(-center.x * scale, -center.y * scale, -center.z * scale)
+
+    return previewScene
+  }, [scene])
+
+  useFrame((_, delta) => {
+    if (modelRef.current) {
+      modelRef.current.rotation.y += delta * 0.55
+    }
+  })
+
+  return (
+    <group ref={modelRef} position={[0, 0, 0]}>
+      <primitive object={clonedScene} />
+    </group>
+  )
+}
+
+function ExhibitBeacon({ position, color, variant = 'crystal', phaseOffset = 0, onClick, isFreeNav, modelPath }) {
   const meshRef = useRef()
+  const hoverRef = useRef(false)
+  const modelLightRef = useRef()
   const [hovered, setHovered] = useState(false)
-  
-  useFrame((state) => {
+
+  useFrame((state, delta) => {
     if (meshRef.current) {
       const t = state.clock.elapsedTime + phaseOffset
       meshRef.current.rotation.y += 0.008
       meshRef.current.position.y = position[1] + Math.sin(t * 1.2) * 0.1
     }
+
+    if (modelPath && modelLightRef.current) {
+      const target = hoverRef.current ? 2.2 : 1.6
+      modelLightRef.current.intensity += (target - modelLightRef.current.intensity) * Math.min(1, 8 * delta)
+    }
   })
-  
+
   return (
-    <group>
-      <mesh
-        ref={meshRef} 
-        position={position}
-        onClick={(e) => {
-          if (isFreeNav) {
-            e.stopPropagation()
-            onClick?.()
-          }
-        }}
-        onPointerOver={() => isFreeNav && setHovered(true)}
-        onPointerOut={() => setHovered(false)}
-      >
-        {variant === 'ring' ? (
-          <>
-            <torusKnotGeometry args={[hovered ? 0.24 : 0.2, 0.08, 120, 12]} />
-            <meshStandardMaterial
-              color={color}
-              emissive={color}
-              emissiveIntensity={hovered ? 3.8 : 2.2}
-              metalness={0.7}
-              roughness={0.2}
-              wireframe
-              toneMapped={false}
-            />
-          </>
-        ) : (
-          <>
-            <icosahedronGeometry args={[hovered ? 0.38 : 0.3, 0]} />
-            <meshStandardMaterial
-              color={color}
-              emissive={color}
-              emissiveIntensity={hovered ? 4 : 2.5}
-              toneMapped={false}
-            />
-          </>
-        )}
-        <pointLight color={color} intensity={hovered ? 4 : 2.8} distance={6} />
-      </mesh>
+    <group ref={meshRef} position={position}>
+      {modelPath ? (
+        <>
+          <ExhibitObjectModel modelPath={modelPath} />
+          <pointLight ref={modelLightRef} color={color} intensity={1.6} distance={5} />
+          <mesh
+            onClick={(e) => {
+              if (!isFreeNav) return
+              e.stopPropagation()
+              onClick?.()
+            }}
+            onPointerOver={() => {
+              if (!isFreeNav) return
+              hoverRef.current = true
+            }}
+            onPointerOut={() => {
+              hoverRef.current = false
+            }}
+          >
+            <sphereGeometry args={[0.52, 12, 12]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          </mesh>
+        </>
+      ) : (
+        <mesh
+          onClick={(e) => {
+            if (isFreeNav) {
+              e.stopPropagation()
+              onClick?.()
+            }
+          }}
+          onPointerOver={() => isFreeNav && setHovered(true)}
+          onPointerOut={() => setHovered(false)}
+        >
+          {variant === 'ring' ? (
+            <>
+              <torusKnotGeometry args={[hovered ? 0.24 : 0.2, 0.08, 120, 12]} />
+              <meshStandardMaterial
+                color={color}
+                emissive={color}
+                emissiveIntensity={hovered ? 3.8 : 2.2}
+                metalness={0.7}
+                roughness={0.2}
+                wireframe
+                toneMapped={false}
+              />
+            </>
+          ) : (
+            <>
+              <icosahedronGeometry args={[hovered ? 0.38 : 0.3, 0]} />
+              <meshStandardMaterial
+                color={color}
+                emissive={color}
+                emissiveIntensity={hovered ? 4 : 2.5}
+                toneMapped={false}
+              />
+            </>
+          )}
+          <pointLight color={color} intensity={hovered ? 4 : 2.8} distance={6} />
+        </mesh>
+      )}
     </group>
   )
 }
@@ -192,6 +302,22 @@ function Effects({ saturation }) {
   return null
 }
 
+function RendererProfile({ isVRMode }) {
+  const { gl } = useThree()
+
+  useEffect(() => {
+    const previousExposure = gl.toneMappingExposure
+
+    gl.toneMappingExposure = 1
+
+    return () => {
+      gl.toneMappingExposure = previousExposure
+    }
+  }, [gl, isVRMode])
+
+  return null
+}
+
 // Overview camera position for free nav mode
 const FREE_NAV_CAMERA = {
   position: [-2.5, 4.5, 2.5],
@@ -201,8 +327,6 @@ const FREE_NAV_CAMERA = {
 function CameraController({ setSaturation, activeNodeId, setActiveNodeId, targetNodeId, setIsMoving, onArriveAtExhibit, yaw, pitch, isFreeNav, onExhibitClick, zoomedExhibit, exhibits, beaconVariant }) {
   const { camera } = useThree()
   const moveDirection = useRef(new Vector3())
-  const targetSaturation = useRef(1.0)
-  const currentSaturation = useRef(1.0)
   const moveSpeed = 0.9
   const baseQuaternion = useRef(new Quaternion())
   const targetQuaternion = useRef(new Quaternion())
@@ -268,7 +392,7 @@ function CameraController({ setSaturation, activeNodeId, setActiveNodeId, target
       tempCam.lookAt(targetLookAt.current)
       camera.quaternion.slerp(tempCam.quaternion, 2.5 * delta)
       
-      setSaturation(1.0)
+      setSaturation(0.0)
       return
     }
 
@@ -318,14 +442,7 @@ function CameraController({ setSaturation, activeNodeId, setActiveNodeId, target
       camera.quaternion.multiply(pitchQuat)
     }
 
-    const nearestDistance = exhibits.reduce((closest, item) => {
-      const d = camera.position.distanceTo(new Vector3(...item.position))
-      return Math.min(closest, d)
-    }, Number.POSITIVE_INFINITY)
-
-    targetSaturation.current = nearestDistance < 1.5 ? 0.0 : 1.0
-    currentSaturation.current += (targetSaturation.current - currentSaturation.current) * 0.05
-    setSaturation(currentSaturation.current)
+    setSaturation(0.0)
   })
 
   return (
@@ -336,6 +453,7 @@ function CameraController({ setSaturation, activeNodeId, setActiveNodeId, target
           position={item.position}
           color={item.color}
           variant={beaconVariant}
+          modelPath={HOTEL_HALL_EXHIBIT_MODELS[item.id]}
           label={item.label}
           phaseOffset={index * 0.8}
           isFreeNav={isFreeNav}
@@ -346,47 +464,408 @@ function CameraController({ setSaturation, activeNodeId, setActiveNodeId, target
   )
 }
 
-// VR Camera Controller - Gaze-based interaction for VR mode
 function VRCameraController({ exhibits, onExhibitClick }) {
-  const { camera } = useThree()
-  const gazeTargetRef = useRef(null)
-  const gazeDurationRef = useRef(0)
-  const GAZE_DURATION_THRESHOLD = 1.5 // seconds to trigger interaction
-  
-  useFrame(() => {
-    // Use camera's forward direction as gaze direction
-    const direction = new Vector3(0, 0, -1).applyQuaternion(camera.quaternion)
-    
-    // Check if gazing at any exhibit
-    let gazedExhibit = null
+  const { camera, gl } = useThree()
+  const triggerLatchedRef = useRef(false)
+  const selectLastAtRef = useRef(0)
+  const xrSpawnAppliedRef = useRef(false)
+  const xrBaseReferenceSpaceRef = useRef(null)
+  const locomotionOffsetRef = useRef(new Vector3())
+  const locomotionYawRef = useRef(0)
+  const leftControllerForwardRef = useRef(new Vector3())
+  const leftControllerRightRef = useRef(new Vector3())
+  const aimedExhibitRef = useRef(null)
+  const sessionHandlersRef = useRef(null)
+  const laserLinesRef = useRef([null, null])
+  const worldPosRef = useRef(new Vector3())
+  const forwardRef = useRef(new Vector3())
+  const toExhibitRef = useRef(new Vector3())
+  const rightRef = useRef(new Vector3())
+  const rayOriginRef = useRef(new Vector3())
+  const rayDirRef = useRef(new Vector3())
+  const rayTempRef = useRef(new Vector3())
+  const rayQuatRef = useRef(new Quaternion())
+  const up = useMemo(() => new Vector3(0, 1, 0), [])
+
+  const VR_SPAWN = useMemo(() => ({
+    position: [-1.6, 1.6, 2.5],
+    lookAt: [-2.36, 1.85, 1.05],
+  }), [])
+
+  const findFocusedExhibitFromRay = useCallback((origin, direction) => {
+    let best = null
+    let bestScore = -Infinity
+
     for (const exhibit of exhibits) {
-      const distance = camera.position.distanceTo(new Vector3(...exhibit.position))
-      if (distance < 6) { // Within interaction range
-        const dirToExhibit = new Vector3(...exhibit.position).sub(camera.position).normalize()
-        const dotProduct = direction.dot(dirToExhibit)
-        if (dotProduct > 0.8) { // Roughly looking at it
-          gazedExhibit = exhibit
-          break
+      toExhibitRef.current.set(...exhibit.position).sub(origin)
+      const projection = toExhibitRef.current.dot(direction)
+      if (projection < 0) {
+        continue
+      }
+
+      const distance = toExhibitRef.current.length()
+      if (distance > 14) {
+        continue
+      }
+
+      rayTempRef.current.copy(toExhibitRef.current).addScaledVector(direction, -projection)
+      const lateralDistance = rayTempRef.current.length()
+      if (lateralDistance > 1.2) {
+        continue
+      }
+
+      const score = projection - lateralDistance * 1.2 - distance * 0.02
+      if (score > bestScore) {
+        bestScore = score
+        best = exhibit
+      }
+    }
+
+    return best
+  }, [exhibits])
+
+  const findFocusedExhibit = useCallback(() => {
+    camera.getWorldPosition(worldPosRef.current)
+    camera.getWorldDirection(forwardRef.current)
+    return findFocusedExhibitFromRay(worldPosRef.current, forwardRef.current)
+  }, [camera, findFocusedExhibitFromRay])
+
+  useEffect(() => {
+    const [x, y, z] = VR_SPAWN.position
+    const [lx, ly, lz] = VR_SPAWN.lookAt
+    camera.position.set(x, y, z)
+    camera.lookAt(new Vector3(lx, ly, lz))
+  }, [camera, VR_SPAWN])
+
+  useEffect(() => {
+    const makeLaser = () => {
+      const geometry = new BufferGeometry()
+      geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 0, 0, -14], 3))
+      const material = new LineBasicMaterial({ color: '#67e8f9', transparent: true, opacity: 0.9 })
+      return new ThreeLine(geometry, material)
+    }
+
+    for (let i = 0; i < 2; i += 1) {
+      const controller = gl.xr.getController(i)
+      if (!controller || laserLinesRef.current[i]) {
+        continue
+      }
+
+      const line = makeLaser()
+      line.name = `vr-laser-${i}`
+      controller.add(line)
+      laserLinesRef.current[i] = line
+    }
+
+    return () => {
+      for (let i = 0; i < 2; i += 1) {
+        const controller = gl.xr.getController(i)
+        const line = laserLinesRef.current[i]
+        if (controller && line) {
+          controller.remove(line)
+          line.geometry.dispose()
+          line.material.dispose()
+        }
+        laserLinesRef.current[i] = null
+      }
+    }
+  }, [gl])
+
+  useEffect(() => {
+    return () => {
+      if (sessionHandlersRef.current?.session) {
+        const active = sessionHandlersRef.current
+        active.session.removeEventListener('select', active.onSelect)
+        active.session.removeEventListener('selectstart', active.onSelect)
+        active.session.removeEventListener('squeezestart', active.onSelect)
+        active.session.removeEventListener('selectend', active.onSelectEnd)
+        active.session.removeEventListener('squeezeend', active.onSelectEnd)
+      }
+    }
+  }, [])
+
+  useFrame((_, delta, xrFrame) => {
+    const session = gl.xr.getSession()
+    if (!session) {
+      xrSpawnAppliedRef.current = false
+      xrBaseReferenceSpaceRef.current = null
+      aimedExhibitRef.current = null
+      triggerLatchedRef.current = false
+      if (sessionHandlersRef.current?.session) {
+        const active = sessionHandlersRef.current
+        active.session.removeEventListener('select', active.onSelect)
+        active.session.removeEventListener('selectstart', active.onSelect)
+        active.session.removeEventListener('squeezestart', active.onSelect)
+        active.session.removeEventListener('selectend', active.onSelectEnd)
+        active.session.removeEventListener('squeezeend', active.onSelectEnd)
+        sessionHandlersRef.current = null
+      }
+      return
+    }
+
+    if (sessionHandlersRef.current?.session !== session) {
+      if (sessionHandlersRef.current?.session) {
+        const previous = sessionHandlersRef.current
+        previous.session.removeEventListener('select', previous.onSelect)
+        previous.session.removeEventListener('selectstart', previous.onSelect)
+        previous.session.removeEventListener('squeezestart', previous.onSelect)
+        previous.session.removeEventListener('selectend', previous.onSelectEnd)
+        previous.session.removeEventListener('squeezeend', previous.onSelectEnd)
+      }
+
+      const onSelect = () => {
+        const now = performance.now()
+        if (now - selectLastAtRef.current < 220) {
+          return
+        }
+        selectLastAtRef.current = now
+
+        const focusedExhibit = aimedExhibitRef.current || findFocusedExhibit()
+        if (focusedExhibit) {
+          onExhibitClick(focusedExhibit)
         }
       }
+
+      const onSelectEnd = () => {}
+
+      session.addEventListener('select', onSelect)
+      session.addEventListener('selectstart', onSelect)
+      session.addEventListener('squeezestart', onSelect)
+      session.addEventListener('selectend', onSelectEnd)
+      session.addEventListener('squeezeend', onSelectEnd)
+
+      sessionHandlersRef.current = { session, onSelect, onSelectEnd }
+      xrBaseReferenceSpaceRef.current = gl.xr.getReferenceSpace?.() || null
+      locomotionOffsetRef.current.set(0, 0, 0)
+      locomotionYawRef.current = 0
     }
-    
-    // Update gaze duration
-    if (gazedExhibit && gazeTargetRef.current?.id === gazedExhibit.id) {
-      gazeDurationRef.current += 0.016 // ~60fps
-      if (gazeDurationRef.current >= GAZE_DURATION_THRESHOLD) {
-        onExhibitClick(gazedExhibit)
-        gazeDurationRef.current = 0
+
+    const xrCamera = gl.xr.getCamera(camera)
+    const movementTarget = xrCamera?.parent || camera.parent || camera
+
+    if (!xrSpawnAppliedRef.current) {
+      const [spawnX, spawnY, spawnZ] = VR_SPAWN.position
+      movementTarget.position.set(spawnX, spawnY, spawnZ)
+      xrSpawnAppliedRef.current = true
+    }
+
+    let moveStrafeInput = 0
+    let moveForwardInput = 0
+    let turnInput = 0
+    let moveSamples = 0
+    let turnSamples = 0
+    let hasLeftControllerBasis = false
+    let triggerPressed = false
+    let aimedByController = null
+    let aimedScore = -Infinity
+    const referenceSpace = gl.xr.getReferenceSpace?.()
+
+    for (let index = 0; index < session.inputSources.length; index += 1) {
+      const inputSource = session.inputSources[index]
+      const gamepad = inputSource?.gamepad
+
+      const controllerObject = gl.xr.getController(index)
+      if (controllerObject) {
+        if (inputSource?.handedness === 'left') {
+          controllerObject.getWorldQuaternion(rayQuatRef.current)
+          leftControllerForwardRef.current.set(0, 0, -1).applyQuaternion(rayQuatRef.current)
+          leftControllerForwardRef.current.y = 0
+          if (leftControllerForwardRef.current.lengthSq() > 1e-5) {
+            leftControllerForwardRef.current.normalize()
+            leftControllerRightRef.current.set(1, 0, 0).applyQuaternion(rayQuatRef.current)
+            leftControllerRightRef.current.y = 0
+            leftControllerRightRef.current.normalize()
+            hasLeftControllerBasis = true
+          }
+        }
+
+        controllerObject.getWorldPosition(rayOriginRef.current)
+        controllerObject.getWorldQuaternion(rayQuatRef.current)
+        const rayDirections = [
+          new Vector3(0, 0, -1).applyQuaternion(rayQuatRef.current).normalize(),
+          new Vector3(0, 0, 1).applyQuaternion(rayQuatRef.current).normalize(),
+        ]
+
+        for (const dir of rayDirections) {
+          const candidate = findFocusedExhibitFromRay(rayOriginRef.current, dir)
+          if (candidate) {
+            toExhibitRef.current.set(...candidate.position).sub(rayOriginRef.current)
+            const score = toExhibitRef.current.dot(dir)
+            if (score > aimedScore) {
+              aimedScore = score
+              aimedByController = candidate
+            }
+          }
+        }
+      } else if (xrFrame && referenceSpace && inputSource?.targetRaySpace) {
+        const pose = xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
+        if (pose) {
+          rayOriginRef.current.set(
+            pose.transform.position.x,
+            pose.transform.position.y,
+            pose.transform.position.z,
+          )
+
+          rayQuatRef.current.set(
+            pose.transform.orientation.x,
+            pose.transform.orientation.y,
+            pose.transform.orientation.z,
+            pose.transform.orientation.w,
+          )
+
+          rayDirRef.current.set(0, 0, -1).applyQuaternion(rayQuatRef.current).normalize()
+          const candidate = findFocusedExhibitFromRay(rayOriginRef.current, rayDirRef.current)
+          if (candidate) {
+            toExhibitRef.current.set(...candidate.position).sub(rayOriginRef.current)
+            const score = toExhibitRef.current.dot(rayDirRef.current)
+            if (score > aimedScore) {
+              aimedScore = score
+              aimedByController = candidate
+            }
+          }
+        }
       }
-    } else if (gazedExhibit) {
-      gazeTargetRef.current = gazedExhibit
-      gazeDurationRef.current = 0
-    } else {
-      gazeTargetRef.current = null
-      gazeDurationRef.current = 0
+
+      if (!gamepad) {
+        continue
+      }
+
+      const axes = gamepad.axes || []
+      const stickPairs = []
+      if (axes.length >= 2) {
+        stickPairs.push([axes[0] || 0, axes[1] || 0])
+      }
+      if (axes.length >= 4) {
+        stickPairs.push([axes[2] || 0, axes[3] || 0])
+      }
+
+      if (stickPairs.length > 0) {
+        let stickX = 0
+        let stickY = 0
+        let strongestMagnitude = 0
+        for (const [candidateX, candidateY] of stickPairs) {
+          const magnitude = Math.hypot(candidateX, candidateY)
+          if (magnitude > strongestMagnitude) {
+            strongestMagnitude = magnitude
+            stickX = candidateX
+            stickY = candidateY
+          }
+        }
+
+        if (inputSource?.handedness === 'right') {
+          turnInput += stickX
+          turnSamples += 1
+          moveForwardInput += stickY
+          moveSamples += 1
+        } else if (inputSource?.handedness === 'left') {
+          moveStrafeInput += stickX
+          moveForwardInput += stickY
+          moveSamples += 1
+        } else {
+          moveStrafeInput += stickX
+          moveForwardInput += stickY
+          moveSamples += 1
+          turnInput += stickX
+          turnSamples += 1
+        }
+      }
+
+      const triggerPrimary = gamepad.buttons?.[0]
+      const triggerSecondary = gamepad.buttons?.[1]
+      const anyButtonPressed = gamepad.buttons?.some((button) => button?.pressed || (button?.value ?? 0) > 0.2)
+      const triggerPressedNow =
+        !!triggerPrimary?.pressed ||
+        !!triggerSecondary?.pressed ||
+        (triggerPrimary?.value ?? 0) > 0.2 ||
+        (triggerSecondary?.value ?? 0) > 0.2 ||
+        !!anyButtonPressed
+
+      if (triggerPressedNow) {
+        triggerPressed = true
+      }
     }
+
+    aimedExhibitRef.current = aimedByController || findFocusedExhibit()
+
+    if (moveSamples > 0) {
+      moveStrafeInput /= moveSamples
+      moveForwardInput /= moveSamples
+    }
+    if (turnSamples > 0) {
+      turnInput /= turnSamples
+    }
+
+    const deadZone = 0.15
+    if (Math.abs(moveStrafeInput) < deadZone) moveStrafeInput = 0
+    if (Math.abs(moveForwardInput) < deadZone) moveForwardInput = 0
+    if (Math.abs(turnInput) < deadZone) turnInput = 0
+
+    let turnStep = 0
+    if (turnInput !== 0) {
+      const turnSpeed = 1.9
+      turnStep = turnInput * turnSpeed * delta
+      movementTarget.rotation.y += turnStep
+      locomotionYawRef.current -= turnStep
+    }
+
+    const yawQuaternion = new Quaternion().setFromAxisAngle(up, -locomotionYawRef.current)
+
+    let moveStrafeStep = 0
+    let moveForwardStep = 0
+
+    if (moveStrafeInput !== 0 || moveForwardInput !== 0) {
+      if (hasLeftControllerBasis) {
+        forwardRef.current.copy(leftControllerForwardRef.current)
+        rightRef.current.copy(leftControllerRightRef.current)
+      } else {
+        forwardRef.current.set(0, 0, -1).applyQuaternion(yawQuaternion)
+        forwardRef.current.normalize()
+        rightRef.current.set(1, 0, 0).applyQuaternion(yawQuaternion)
+        rightRef.current.normalize()
+      }
+
+      const speed = 2.1
+      moveStrafeStep = moveStrafeInput * speed * delta
+      moveForwardStep = -moveForwardInput * speed * delta
+
+      movementTarget.position.addScaledVector(rightRef.current, moveStrafeStep)
+      movementTarget.position.addScaledVector(forwardRef.current, moveForwardStep)
+    }
+
+    if (moveStrafeStep !== 0 || moveForwardStep !== 0 || turnStep !== 0) {
+      const baseRefSpace = xrBaseReferenceSpaceRef.current || gl.xr.getReferenceSpace?.()
+      if (baseRefSpace && typeof XRRigidTransform !== 'undefined') {
+        if (moveStrafeStep !== 0 || moveForwardStep !== 0) {
+          locomotionOffsetRef.current.addScaledVector(rightRef.current, moveStrafeStep)
+          locomotionOffsetRef.current.addScaledVector(forwardRef.current, moveForwardStep)
+        }
+
+        const offsetRefSpace = baseRefSpace.getOffsetReferenceSpace(
+          new XRRigidTransform({
+            x: -locomotionOffsetRef.current.x,
+            y: 0,
+            z: -locomotionOffsetRef.current.z,
+          }, {
+            x: yawQuaternion.x,
+            y: yawQuaternion.y,
+            z: yawQuaternion.z,
+            w: yawQuaternion.w,
+          }),
+        )
+        gl.xr.setReferenceSpace(offsetRefSpace)
+      }
+    }
+
+    if (triggerPressed && !triggerLatchedRef.current) {
+      const focusedExhibit = aimedExhibitRef.current || findFocusedExhibit()
+      if (focusedExhibit) {
+        onExhibitClick(focusedExhibit)
+      }
+    }
+
+    triggerLatchedRef.current = triggerPressed
   })
-  
+
   return (
     <>
       {exhibits.map((exhibit, index) => (
@@ -394,6 +873,7 @@ function VRCameraController({ exhibits, onExhibitClick }) {
           key={exhibit.id}
           position={exhibit.position}
           color={exhibit.color}
+          modelPath={HOTEL_HALL_EXHIBIT_MODELS[exhibit.id]}
           variant="crystal"
           phaseOffset={index * 0.8}
           isFreeNav={true}
@@ -424,6 +904,7 @@ export default function Exhibition() {
   const [zoomedExhibit, setZoomedExhibit] = useState(null)
   const [isVRMode, setIsVRMode] = useState(searchParams.get('vr') === 'true')
   const [isXRActive, setIsXRActive] = useState(false)
+  const [immersiveRequested, setImmersiveRequested] = useState(false)
   const [xrSupported, setXrSupported] = useState(true)
   const [xrMessage, setXrMessage] = useState('')
   const interactionTimerRef = useRef(null)
@@ -438,6 +919,7 @@ export default function Exhibition() {
   const lastTouch = useRef({ x: 0, y: 0 })
 
   const currentNode = NAV_NODES[activeNodeId]
+  const currentExhibitModelPath = currentExhibit ? HOTEL_HALL_EXHIBIT_MODELS[currentExhibit.id] : null
 
   const endVRSession = useCallback(async () => {
     const activeSession = xrSessionRef.current || rendererRef.current?.xr?.getSession?.()
@@ -454,7 +936,7 @@ export default function Exhibition() {
 
   const startVRSession = useCallback(
     async ({ fromUserAction = false } = {}) => {
-      if (!isVRMode || !rendererRef.current) {
+      if ((!isVRMode && !fromUserAction) || !rendererRef.current) {
         return
       }
 
@@ -476,6 +958,7 @@ export default function Exhibition() {
         const existingSession = rendererRef.current.xr.getSession()
         if (existingSession) {
           xrSessionRef.current = existingSession
+          setIsVRMode(true)
           setIsXRActive(true)
           setXrMessage('')
           return
@@ -493,6 +976,7 @@ export default function Exhibition() {
 
         await rendererRef.current.xr.setSession(session)
         xrSessionRef.current = session
+        setIsVRMode(true)
         setIsXRActive(true)
         setXrMessage('')
       } catch (error) {
@@ -691,7 +1175,7 @@ export default function Exhibition() {
       return
     }
 
-    void startVRSession()
+    void startVRSession({ fromUserAction: true })
   }, [isVRMode, startVRSession, endVRSession])
 
   useEffect(() => {
@@ -715,13 +1199,18 @@ export default function Exhibition() {
         <p className="exhibition-hud__line">World: {selectedWorld.label}</p>
         {isVRMode && <p className="exhibition-hud__line" style={{ color: '#ff6ba9' }}>🎮 VR MODE</p>}
         {isVRMode && !isXRActive && xrSupported && (
-          <button
-            className="exhibition-nav-toggle exhibition-nav-toggle--vr-exit"
-            onClick={() => void startVRSession({ fromUserAction: true })}
-            title="Start immersive headset session"
-          >
-            Enter Immersive VR
-          </button>
+          !immersiveRequested && (
+            <button
+              className="exhibition-nav-toggle exhibition-nav-toggle--vr-exit"
+              onClick={() => {
+                setImmersiveRequested(true)
+                void startVRSession({ fromUserAction: true })
+              }}
+              title="Start immersive headset session"
+            >
+              Enter Immersive VR
+            </button>
+          )
         )}
         {isVRMode && xrMessage && <p className="exhibition-hud__line">{xrMessage}</p>}
         {!isVRMode && !isFreeNav && <p className="exhibition-hud__line">Current: {activeNodeId}</p>}
@@ -736,7 +1225,7 @@ export default function Exhibition() {
             {isFreeNav ? '🎯 Free Nav' : '🚶 Guided'}
           </button>
         )}
-        {isVRMode && (
+        {isVRMode && !isXRActive && (
           <button 
             className="exhibition-nav-toggle exhibition-nav-toggle--vr-exit"
             onClick={() => setIsVRMode(false)}
@@ -760,13 +1249,23 @@ export default function Exhibition() {
           <div className="exhibition-popup-content" onClick={(e) => e.stopPropagation()}>
             <div className="exhibition-popup-left">
               <div className="exhibition-popup-orb-shell">
-                <div 
-                  className="exhibition-popup-orb" 
-                  style={{ 
-                    backgroundColor: currentExhibit.color, 
-                    boxShadow: `0 0 60px ${currentExhibit.color}, 0 0 120px ${currentExhibit.color}40` 
-                  }} 
-                />
+                {currentExhibitModelPath ? (
+                  <Canvas camera={{ position: [0, 0, 4.2], fov: 34 }} style={{ width: '100%', height: '100%' }}>
+                    <ambientLight intensity={1.05} />
+                    <directionalLight position={[2, 4, 3]} intensity={1.35} color={currentExhibit.color} />
+                    <pointLight position={[-2, 1.5, 1.2]} color={currentExhibit.color} intensity={1.1} distance={7} />
+                    <pointLight position={[2, 1.8, -1]} color={'#ffffff'} intensity={0.7} distance={7} />
+                    <PopupPreviewModel modelPath={currentExhibitModelPath} />
+                  </Canvas>
+                ) : (
+                  <div
+                    className="exhibition-popup-orb"
+                    style={{
+                      backgroundColor: currentExhibit.color,
+                      boxShadow: `0 0 60px ${currentExhibit.color}, 0 0 120px ${currentExhibit.color}40`
+                    }}
+                  />
+                )}
               </div>
               <div className="exhibition-popup-meta">
                 <p className="exhibition-popup-kicker">Object</p>
@@ -864,7 +1363,7 @@ export default function Exhibition() {
 
       <Canvas
         className="exhibition-canvas"
-        camera={{ position: [0, 1.6, 5] }}
+        camera={{ position: [-1.6, 1.6, 2.5] }}
         onCreated={({ gl }) => {
           rendererRef.current = gl
           gl.xr.enabled = true
