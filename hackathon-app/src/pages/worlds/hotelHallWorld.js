@@ -55,7 +55,7 @@ export const hotelHallWorld = {
       messageTitle: 'The Message',
       message:
         'This photograph gives me strength. It reminds me that love, cultivated every day, can overcome illness and keep us united.',
-      position: [-3.72, 1.95, -1.82],
+      position: [-3.72, 1.95, -0.95],
       color: '#ff70a6',
       nodeId: 'hall-end',
     },

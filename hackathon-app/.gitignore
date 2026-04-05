@@ -23,5 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 *.glb
-!public/assets/models/hotel_hall.glb
-!public/assets/models/art_gallery.glb
+!src/assets/objects3D/*.glb
+!src/assets/models/*.glb
+!public/assets/models/*.glb

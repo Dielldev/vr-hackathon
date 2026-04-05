@@ -1,2 +1,5 @@
 declare module '*.js'
 declare module '*.jsx'
+declare module '*.glb'
+declare module '*.gltf'
+declare module '*.bin'

@@ -402,6 +402,73 @@
   padding-bottom: 6px;
 }
 
+.voice-note-player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.voice-note-player__play {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(5, 16, 21, 0.7);
+  color: rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.voice-note-player__play:hover {
+  transform: translateY(-1px) scale(1.03);
+  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(7, 22, 34, 0.82);
+}
+
+.voice-note-player__play-icon {
+  font-size: 15px;
+  line-height: 1;
+  margin-left: 2px;
+}
+
+.voice-note-player__signal {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex: 1;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 2px 0 0;
+}
+
+.voice-note-player__bar {
+  width: 3px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  transform-origin: 50% 100%;
+}
+
+.voice-note-player__signal.is-active .voice-note-player__bar {
+  animation: voiceNoteSignalPulse 0.9s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+@keyframes voiceNoteSignalPulse {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scaleY(1.9);
+    opacity: 1;
+  }
+}
+
 /* Mobile adjustments */
 @media (max-width: 720px) {
   .exhibition-hud {
@@ -476,6 +543,16 @@
   .exhibition-popup-close {
     top: 10px;
     right: 6px;
+  }
+
+  .voice-note-player__play {
+    width: 40px;
+    height: 40px;
+  }
+
+  .voice-note-player__signal {
+    min-height: 24px;
+    gap: 4px;
   }
 }
 

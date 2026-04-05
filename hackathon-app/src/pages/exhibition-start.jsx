@@ -11,7 +11,7 @@ const START_WORLDS = [
     id: 'hotel-hall-prototype',
     title: 'World 2',
     available: true,
-    modelPath: '/assets/models/hotel_hall.glb',
+    modelPath: '/assets/models/dae_diorama_-_grandmas_house.glb',
   },
   { id: 'art-gallery', title: 'World 3', available: true, modelPath: '/assets/models/art_gallery.glb' },
 ]
@@ -132,5 +132,5 @@ export default function ExhibitionStart() {
 }
 
 useGLTF.preload('/assets/models/hotel_hall.glb')
-useGLTF.preload('/assets/models/hotel_hall.glb')
+useGLTF.preload('/assets/models/dae_diorama_-_grandmas_house.glb')
 useGLTF.preload('/assets/models/art_gallery.glb')
