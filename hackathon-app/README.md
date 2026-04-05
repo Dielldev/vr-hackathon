@@ -1,73 +1,139 @@
-# React + TypeScript + Vite
+# Resilient Echoes VR Exhibition App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interactive web experience built with React, TypeScript, Vite, Three.js, and React Three Fiber.
 
-Currently, two official plugins are available:
+The app includes:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Public pages (home, about, gallery, exhibition world selector).
+- Three exhibition world implementations.
+- Desktop and optional WebXR VR flow.
+- Admin tools for shader editor access and world/object transform editing.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- TypeScript + JSX/TSX hybrid pages
+- Vite 8
+- React Router
+- Three.js
+- @react-three/fiber
+- @react-three/drei
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js LTS (modern version, recommended for Vite 8)
+- npm
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Install and Run
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+http://localhost:5173
 ```
+
+## Available Scripts
+
+- `npm run dev`: Start local dev server.
+- `npm run build`: Run TypeScript build (`tsc -b`) and Vite production build.
+- `npm run preview`: Serve `dist/` locally.
+- `npm run lint`: Run ESLint.
+
+## Main Routes
+
+Configured in `src/App.tsx`:
+
+- `/`: Home page.
+- `/about`: About page.
+- `/gallery`: Story submission gallery page (client-side form).
+- `/admin`: Admin home.
+- `/admin/editor`: Shader/editor page.
+- `/admin/map-editor`: 3D map/object transform editor.
+- `/exhibition`: World selection landing page.
+- `/exhibition/world/hotel-hall-prototype`: World 2 specialized implementation.
+- `/exhibition/world/art-gallery`: World 3 specialized implementation.
+- `/exhibition/world/:worldId`: Generic exhibition renderer.
+- `/robots.txt`: React route (component-based page).
+
+Redirects:
+
+- `/editor` -> `/admin/editor`
+- `/ADMIN` -> `/admin`
+- `/exhibition/start` -> `/exhibition`
+
+## Architecture Notes
+
+### Hybrid Legacy + React Behavior
+
+`src/App.tsx` dynamically imports `src/assets/js/index.js` on non-exhibition, non-admin, and non-gallery routes to keep legacy DOM-driven behavior available where needed.
+
+### World System
+
+- World registry: `src/pages/worlds/index.js`
+- World data files: `src/pages/worlds/*.js`
+- Generic world page: `src/pages/exb.jsx`
+- Specialized world pages:
+  - `src/pages/exb-world2.jsx`
+  - `src/pages/exb-world3.jsx`
+
+### 3D Assets
+
+Runtime assets are primarily served from `public/assets/` (models, textures, data, images).
+
+## Admin Map Editor
+
+Route: `/admin/map-editor`
+
+Capabilities:
+
+- Select world and preview in a live 3D canvas.
+- Move/rotate world transforms with gizmos.
+- Switch to object edit mode (where exhibits are available) and reposition exhibits.
+- Save and reset transforms.
+- Open selected world directly from the editor.
+- Copy helper position line for manual world config editing.
+
+Persistence is local browser storage:
+
+- World transforms key: `resilient.worldTransforms.v1`
+- Exhibit transforms key: `resilient.exhibitTransforms.v1`
+
+Relevant utilities:
+
+- `src/utils/worldTransforms.js`
+- `src/utils/exhibitTransforms.js`
+
+## VR Mode Notes
+
+- World selector includes links that append `?vr=true`.
+- Exhibition pages check URL search params and can start immersive VR session when browser/headset support WebXR.
+- If WebXR is unsupported, the UI shows a fallback message.
+
+## Deployment
+
+`vercel.json` is configured for SPA routing with rewrites:
+
+- Static asset requests are served directly.
+- Other routes rewrite to `index.html`.
+
+## Current Limitations
+
+- Gallery story submission is currently client-side only (no backend persistence in this repository).
+- Admin routes are visible in-app (no authentication layer in this codebase).
+- No automated test files are currently checked in.
+
+## Troubleshooting
+
+- Scene does not update after map edits:
+  - Save in map editor, then reopen world route.
+- You want to reset local map/object edits:
+  - Use Reset in map editor, or clear localStorage keys above in browser devtools.
+- VR button appears but immersive session does not start:
+  - Verify headset/browser WebXR support and secure context requirements.
