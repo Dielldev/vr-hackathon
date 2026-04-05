@@ -1,51 +1,40 @@
-# hackathontheme
+# VR Hackathon Workspace
 
-CineShader-based web experience with local assets and static pages.
+This repository contains a React + Vite web app for the Resilient Echoes immersive exhibition experience.
 
-## Project Structure
+## Workspace Layout
 
-- index.html
-- about.html
-- gallery.html
-- editor.html
-- assets/css/index.css
-- assets/js/index.js
-- assets/models/
-- assets/textures/
-- assets/data/
+- `hackathon-app/`: Main application (React, TypeScript, React Router, Three.js, React Three Fiber).
+- `README.md`: Workspace-level quick guide (this file).
 
-## How To Run Locally
+## Quick Start
 
-This project must be served over HTTP (not opened with file://).
-
-### Option 1: Serve with npx
-
-1. Open terminal in project root.
-2. Run:
+Run the app from the `hackathon-app` folder:
 
 ```bash
-npx serve . -l 8080
+cd hackathon-app
+npm install
+npm run dev
 ```
 
-3. Open:
+Then open:
 
 ```text
-http://localhost:8080
+http://localhost:5173
 ```
 
-### Option 2: VS Code Live Server
+## Scripts
 
-1. Open project in VS Code.
-2. Right click index.html.
-3. Click "Open with Live Server".
+From `hackathon-app/`:
 
-## Notes
+- `npm run dev`: Start Vite dev server.
+- `npm run build`: Type-check and create production build.
+- `npm run preview`: Preview production build locally.
+- `npm run lint`: Run ESLint.
 
-- If the loader gets stuck, verify these folders exist and contain files:
-  - assets/models
-  - assets/textures
-  - assets/data
-- Use hard refresh after edits:
-  - Windows/Linux: Ctrl+F5
-  - macOS: Cmd+Shift+R
+## Documentation
+
+For complete project documentation (routes, world system, map editor, storage keys, and deployment), see:
+
+- `hackathon-app/README.md`
 
